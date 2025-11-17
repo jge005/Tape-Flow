@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>TAPE FLOW - 테이프/재고 관리</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Pretendard 폰트 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Pretendard Variable", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    :root {
+      --bg-gradient: linear-gradient(135deg, #f9fafb, #eef2ff, #fdf2ff);
+      --card-bg: rgba(255,255,255,0.98);
+      --card-border: #e5e7ff;
+      --shadow-soft: 0 10px 24px rgba(148, 163, 234, 0.45);
+
+      --text-main: #111827;
+      --text-sub: #6b7280;
+      --text-muted: #9ca3af;
+
+      --primary-1: #6366f1;
+      --primary-2: #a855f7;
+      --primary-soft: rgba(129,140,248,0.12);
+
+      --danger-bg: #fb7185;
+      --danger-text: #111827;
+
+      --chip-bg: #eef2ff;
+      --chip-text: #4f46e5;
+
+      --toast-bg: rgba(17,24,39,0.96);
+      --toast-text: #f9fafb;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg-gradient);
+      padding: 12px;
+      color: var(--text-main);
+    }
+    .app-shell {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .app-header {
+      max-width: 960px;
+      margin: 0 auto 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .app-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .app-subtitle {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+    .role-badge {
+      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.95);
+      border: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 0 10px rgba(129,140,248,0.35);
+      white-space: nowrap;
+    }
+    .role-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
+      box-shadow: 0 0 8px rgba(129,140,248,0.9);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      padding: 12px 14px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--card-border);
+      margin-bottom: 12px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.05s ease, box-shadow 0.1s ease, background 0.1s ease, opacity 0.1s ease;
+    }
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
+      opacity: 0.92;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(129, 140, 248, 0.5);
+    }
+    .btn-secondary {
+      background: var(--primary-soft);
+      color: #283252;
+    }
+    .btn-danger {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+    }
+    .btn-small {
+      padding: 5px 9px;
+      font-size: 12px;
+    }
+
+    .role-select-card {
+      max-width: 420px;
+      margin: 40px auto 0;
+      text-align: center;
+    }
+    .role-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    .role-btn {
+      flex: 1 1 120px;
+    }
+    .role-desc {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-top: 6px;
+    }
+
+    .tab-nav {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .tab-btn {
+      flex: 1;
+      text-align: center;
+      padding: 7px 8px;
+      font-size: 13px;
+      border-radius: 999px;
+      border: 1px solid var(--card-border);
+      background: rgba(255,255,255,0.92);
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: background 0.1s ease, color 0.1s ease, border 0.1s ease;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 10px rgba(129,140,248,0.4);
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .section-sub {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: minmax(0,1fr);
+      gap: 8px;
+    }
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-row label {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+    .form-row input,
+    .form-row select,
+    .form-row textarea {
+      padding: 7px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      font-size: 13px;
+      background: #f9fafb;
+    }
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: var(--chip-bg);
+      color: var(--chip-text);
+    }
+
+    .list-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .list-table th,
+    .list-table td {
+      padding: 6px 4px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .list-table th {
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-sub);
+      font-size: 11px;
+    }
+    .list-table td.actions {
+      text-align: right;
+      white-space: nowrap;
+    }
+    .empty-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .summary-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .summary-pill {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.95);
+      border: 1px solid var(--card-border);
+      font-size: 11px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(40px);
+      background: var(--toast-bg);
+      color: var(--toast-text);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 9999;
+      max-width: 80%;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (min-width: 768px) {
+      body {
+        padding: 20px;
+      }
+      .form-grid.two {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-header">
+    <div class="title-wrap">
+      <div class="app-title">TAPE FLOW</div>
+      <div class="app-subtitle">테이프 · 작업 · 재고 관리</div>
+    </div>
+    <div class="role-badge" id="roleBadge" style="display:none;">
+      <span class="role-dot"></span>
+      <span id="roleBadgeText"></span>
+    </div>
+  </div>
+
+  <div class="app-shell">
+    <!-- 역할 선택 -->
+    <div id="roleSelectCard" class="card role-select-card">
+      <div class="section-title">어디에서 사용할 거야?</div>
+      <div class="section-sub">
+        테이프실 / 가공실1 / 태성 중에서<br />
+        지금 이 기기에서 사용할 역할을 선택해 줘.
+      </div>
+      <div class="role-buttons">
+        <button class="btn btn-primary role-btn" data-role="tape">테이프실</button>
+        <button class="btn btn-secondary role-btn" data-role="proc1">가공실 1</button>
+        <button class="btn btn-secondary role-btn" data-role="taesung">태성 (가공실 2)</button>
+      </div>
+      <div class="role-desc">
+        역할은 언제든지 화면 상단의 역할표시를 눌러서 다시 선택할 수 있어.
+      </div>
+    </div>
+
+    <!-- 테이프실 화면 -->
+    <div id="tapeView" style="display:none;">
+      <div class="card">
+        <div class="summary-bar">
+          <div class="summary-pill" id="summaryProducts">제품 0종</div>
+          <div class="summary-pill" id="summaryTapes">테이프 0종</div>
+          <div class="summary-pill" id="summaryJobsToday">오늘 작업 0건</div>
+        </div>
+        <div class="tab-nav">
+          <button class="tab-btn active" data-tab="productsTab">제품 재고</button>
+          <button class="tab-btn" data-tab="tapesTab">테이프 재고</button>
+          <button class="tab-btn" data-tab="jobsTab">작업 등록</button>
+          <button class="tab-btn" data-tab="historyTab">히스토리</button>
+        </div>
+      </div>
+
+      <!-- 제품 재고 탭 -->
+      <div id="productsTab" class="card">
+        <div class="section-title">작업 전 제품 재고</div>
+        <div class="section-sub">
+          인쇄실에서 올라온 <b>작업 전 제품</b>을 여기서 관리해.<br />
+          재고 수량은 작업 등록 시 자동으로 차감돼.
+        </div>
+
+        <form id="productForm">
+          <div class="form-grid two">
+            <div class="form-row">
+              <label>제품명 *</label>
+              <input type="text" id="productNameInput" required />
+            </div>
+            <div class="form-row">
+              <label>제품 코드 / 약어</label>
+              <input type="text" id="productCodeInput" placeholder="예: A-123, DT-화이트 등" />
+            </div>
+            <div class="form-row">
+              <label>규격 / 설명</label>
+              <input type="text" id="productSpecInput" placeholder="예: 500×700, 흰색 바탕 등" />
+            </div>
+            <div class="form-row">
+              <label>현재 재고 수량 *</label>
+              <input type="number" id="productStockInput" min="0" value="0" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary btn-small" id="productResetBtn">초기화</button>
+            <button type="submit" class="btn btn-primary btn-small">제품 저장</button>
+          </div>
+        </form>
+
+        <table class="list-table" id="productTable">
+          <thead>
+            <tr>
+              <th>제품명</th>
+              <th>코드</th>
+              <th>규격</th>
+              <th>재고</th>
+              <th class="actions">관리</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div class="empty-text" id="productEmptyText" style="display:none;">
+          아직 등록된 제품이 없어. 위 폼에서 먼저 제품을 추가해줘.
+        </div>
+      </div>
+
+      <!-- 테이프 재고 탭 -->
+      <div id="tapesTab" class="card" style="display:none;">
+        <div class="section-title">테이프 재고</div>
+        <div class="section-sub">
+          가공실에서 올라오는 <b>테이프 가공물</b>을 품목별로 관리해.<br />
+          여기 재고는 가공실에서 올릴 때 +, 작업에서 사용할 때 - 자동 반영돼.
+        </div>
+
+        <form id="tapeForm">
+          <div class="form-grid two">
+            <div class="form-row">
+              <label>테이프 이름 *</label>
+              <input type="text" id="tapeNameInput" placeholder="예: 50mm 흰색, 검정문자용 등" required />
+            </div>
+            <div class="form-row">
+              <label>폭 / 두께 / 타입</label>
+              <input type="text" id="tapeSpecInput" placeholder="예: 50mm, 0.1t, 바탕용 등" />
+            </div>
+            <div class="form-row">
+              <label>현재 장수 *</label>
+              <input type="number" id="tapeStockInput" min="0" value="0" />
+            </div>
+            <div class="form-row">
+              <label>비고</label>
+              <input type="text" id="tapeMemoInput" placeholder="메모가 필요하면 적어줘." />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary btn-small" id="tapeResetBtn">초기화</button>
+            <button type="submit" class="btn btn-primary btn-small">테이프 저장</button>
+          </div>
+        </form>
+
+        <table class="list-table" id="tapeTable">
+          <thead>
+            <tr>
+              <th>테이프명</th>
+              <th>스펙</th>
+              <th>재고(장)</th>
+              <th class="actions">관리</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div class="empty-text" id="tapeEmptyText" style="display:none;">
+          등록된 테이프가 없어. 위 폼에서 먼저 테이프 품목을 만들어줘.
+        </div>
+      </div>
+
+      <!-- 작업 등록 탭 -->
+      <div id="jobsTab" class="card" style="display:none;">
+        <div class="section-title">작업 등록 (테이프 붙여서 내리기)</div>
+        <div class="section-sub">
+          오늘 어떤 제품을 몇 장 작업해서, 어떤 테이프를 얼마나 썼는지 기록해.<br />
+          저장하면 <b>제품 재고 / 테이프 재고가 자동으로 반영</b>돼.
+        </div>
+
+        <form id="jobForm">
+          <div class="form-grid">
+            <div class="form-row">
+              <label>작업일</label>
+              <input type="date" id="jobDateInput" />
+            </div>
+          </div>
+
+          <div class="form-grid two" style="margin-top:6px;">
+            <div class="form-row">
+              <label>제품 선택 *</label>
+              <select id="jobProductSelect"></select>
+            </div>
+            <div class="form-row">
+              <label>작업 수량 *</label>
+              <input type="number" id="jobQtyInput" min="1" value="1" />
+            </div>
+          </div>
+
+          <div class="form-grid two" style="margin-top:6px;">
+            <div class="form-row">
+              <label>테이프 선택 *</label>
+              <select id="jobTapeSelect"></select>
+            </div>
+            <div class="form-row">
+              <label>테이프 사용 장수 *</label>
+              <input type="number" id="jobTapeQtyInput" min="1" value="1" />
+            </div>
+          </div>
+
+          <div class="form-grid two" style="margin-top:6px;">
+            <div class="form-row">
+              <label>내려보낼 곳 *</label>
+              <select id="jobTargetSelect">
+                <option value="proc1">가공실 1</option>
+                <option value="taesung">태성</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>비고</label>
+              <input type="text" id="jobMemoInput" placeholder="선택사항" />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary btn-small" id="jobResetBtn">초기화</button>
+            <button type="submit" class="btn btn-primary btn-small">작업 저장</button>
+          </div>
+        </form>
+
+        <div style="margin-top:10px;">
+          <div class="section-title" style="font-size:13px;">최근 작업 내역</div>
+          <table class="list-table" id="jobTable">
+            <thead>
+              <tr>
+                <th>날짜</th>
+                <th>제품</th>
+                <th>수량</th>
+                <th>테이프(장)</th>
+                <th>목적지</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <div class="empty-text" id="jobEmptyText" style="display:none;">
+            아직 작업 등록이 없어. 위 폼에서 작업을 한 번 기록해봐.
+          </div>
+        </div>
+      </div>
+
+      <!-- 히스토리 탭 -->
+      <div id="historyTab" class="card" style="display:none;">
+        <div class="section-title">히스토리</div>
+        <div class="section-sub">
+          최근 <b>작업 등록 / 가공실에서 올린 테이프</b>를 한 번에 볼 수 있어.
+        </div>
+        <table class="list-table" id="historyTable">
+          <thead>
+            <tr>
+              <th>시간</th>
+              <th>유형</th>
+              <th>내용</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div class="empty-text" id="historyEmptyText" style="display:none;">
+          아직 기록이 없어. 작업을 등록하거나 가공실에서 테이프를 올리면 여기 쌓여.
+        </div>
+      </div>
+    </div>
+
+    <!-- 가공실 / 태성 화면 -->
+    <div id="procView" style="display:none;">
+      <div class="card">
+        <div class="section-title" id="procTitle">가공실 테이프 가공 등록</div>
+        <div class="section-sub" id="procSubText">
+          테이프 가공을 마치고 테이프실로 올릴 때, 여기에서 몇 장 올렸는지 기록해줘.<br />
+          테이프실 재고에 자동으로 더해질 거야.
+        </div>
+
+        <form id="incomingForm">
+          <div class="form-grid two">
+            <div class="form-row">
+              <label>테이프 품목 *</label>
+              <select id="incomingTapeSelect"></select>
+            </div>
+            <div class="form-row">
+              <label>올린 장수 *</label>
+              <input type="number" id="incomingQtyInput" min="1" value="1" />
+            </div>
+          </div>
+
+          <div class="form-grid" style="margin-top:6px;">
+            <div class="form-row">
+              <label>비고</label>
+              <input type="text" id="incomingMemoInput" placeholder="선택사항" />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary btn-small" id="incomingResetBtn">초기화</button>
+            <button type="submit" class="btn btn-primary btn-small">등록</button>
+          </div>
+        </form>
+
+        <div style="margin-top:10px;">
+          <div class="section-title" style="font-size:13px;">오늘 올린 테이프</div>
+          <table class="list-table" id="incomingTable">
+            <thead>
+              <tr>
+                <th>시간</th>
+                <th>테이프</th>
+                <th>장수</th>
+                <th>비고</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <div class="empty-text" id="incomingEmptyText" style="display:none;">
+            오늘 등록한 내역이 없어. 테이프 가공 후 올릴 때 이 화면에서 기록해줘.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 토스트 -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+
+  <script>
+    /* ====== Firebase 설정 (Film Find와 동일 프로젝트 사용 중) ====== */
+    const firebaseConfig = {
+      apiKey: "AIzaSyBrBnVuXca2Ou1oMFOLzq3KGEN8xiK5L_U",
+      authDomain: "film-find-5242d.firebaseapp.com",
+      projectId: "film-find-5242d",
+      storageBucket: "film-find-5242d.firebasestorage.app",
+      messagingSenderId: "185123433624",
+      appId: "1:185123433624:web:269eb9b4b6437887f2f4ed",
+      measurementId: "G-V9KL8XS9KJ"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const PRODUCTS_COL = "tf_products";
+    const TAPES_COL    = "tf_tapes";
+    const JOBS_COL     = "tf_jobs";
+    const INCOMING_COL = "tf_incoming";
+
+    let products = [];
+    let tapes    = [];
+    let jobs     = [];
+    let incomings = [];
+    let currentRole = null; // 'tape' | 'proc1' | 'taesung'
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    function formatDateTime(ts) {
+      if (!ts) return "-";
+      const d = new Date(ts);
+      if (isNaN(d.getTime())) return "-";
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const day = String(d.getDate()).padStart(2,"0");
+      const hh = String(d.getHours()).padStart(2,"0");
+      const mm = String(d.getMinutes()).padStart(2,"0");
+      return `${y}-${m}-${day} ${hh}:${mm}`;
+    }
+    function todayString() {
+      return new Date().toISOString().slice(0,10);
+    }
+
+    /* ====== 역할 선택 / 전환 ====== */
+    function applyRole(role) {
+      currentRole = role;
+      const badge = document.getElementById("roleBadge");
+      const badgeText = document.getElementById("roleBadgeText");
+      const selectCard = document.getElementById("roleSelectCard");
+      const tapeView = document.getElementById("tapeView");
+      const procView = document.getElementById("procView");
+
+      let label = "";
+      if (role === "tape")   label = "테이프실 (메인)";
+      if (role === "proc1")  label = "가공실 1";
+      if (role === "taesung")label = "태성 (가공실 2)";
+      badgeText.textContent = label;
+      badge.style.display = "flex";
+
+      if (role === "tape") {
+        tapeView.style.display = "block";
+        procView.style.display = "none";
+      } else {
+        tapeView.style.display = "none";
+        procView.style.display = "block";
+        const title = document.getElementById("procTitle");
+        const sub = document.getElementById("procSubText");
+        if (role === "proc1") {
+          title.textContent = "가공실 1 - 테이프 가공 등록";
+          sub.innerHTML = "가공실 1에서 테이프 가공을 마치고 테이프실로 올릴 때, 여기에서 몇 장 올렸는지 기록해줘.";
+        } else {
+          title.textContent = "태성(가공실 2) - 테이프 가공 등록";
+          sub.innerHTML = "태성에서 테이프 가공을 마치고 테이프실로 올릴 때, 여기에서 몇 장 올렸는지 기록해줘.";
+        }
+      }
+      selectCard.style.display = "none";
+      localStorage.setItem("tf_lastRole", role);
+      refreshIncomingTapeSelect();
+      renderTodayIncomingList();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const lastRole = localStorage.getItem("tf_lastRole");
+      if (lastRole) {
+        applyRole(lastRole);
+      }
+
+      document.querySelectorAll(".role-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          applyRole(btn.dataset.role);
+        });
+      });
+
+      document.getElementById("roleBadge").addEventListener("click", () => {
+        // 역할 다시 선택
+        document.getElementById("tapeView").style.display = "none";
+        document.getElementById("procView").style.display = "none";
+        document.getElementById("roleSelectCard").style.display = "block";
+      });
+
+      initTabs();
+      initProducts();
+      initTapes();
+      initJobs();
+      initIncoming();
+
+      startListeners();
+    });
+
+    /* ====== 탭 전환 (테이프실) ====== */
+    function initTabs() {
+      const tabBtns = document.querySelectorAll(".tab-btn");
+      tabBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const targetId = btn.dataset.tab;
+          tabBtns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          ["productsTab","tapesTab","jobsTab","historyTab"].forEach(id => {
+            document.getElementById(id).style.display = (id === targetId) ? "block" : "none";
+          });
+        });
+      });
+    }
+
+    /* ====== Firestore 실시간 ====== */
+    function startListeners() {
+      db.collection(PRODUCTS_COL).orderBy("createdAt","desc").onSnapshot(snap => {
+        products = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        renderProductList();
+        refreshProductSelect();
+        updateSummary();
+      });
+
+      db.collection(TAPES_COL).orderBy("createdAt","desc").onSnapshot(snap => {
+        tapes = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        renderTapeList();
+        refreshTapeSelect();
+        refreshIncomingTapeSelect();
+        updateSummary();
+      });
+
+      db.collection(JOBS_COL).orderBy("createdAt","desc").limit(50).onSnapshot(snap => {
+        jobs = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        renderJobList();
+        renderHistoryList();
+        updateSummary();
+      });
+
+      db.collection(INCOMING_COL).orderBy("createdAt","desc").limit(50).onSnapshot(snap => {
+        incomings = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        renderTodayIncomingList();
+        renderHistoryList();
+      });
+    }
+
+    /* ====== 제품 재고 ====== */
+    let editingProductId = null;
+
+    function initProducts() {
+      document.getElementById("productForm").addEventListener("submit", saveProduct);
+      document.getElementById("productResetBtn").addEventListener("click", resetProductForm);
+    }
+
+    function resetProductForm() {
+      editingProductId = null;
+      document.getElementById("productNameInput").value = "";
+      document.getElementById("productCodeInput").value = "";
+      document.getElementById("productSpecInput").value = "";
+      document.getElementById("productStockInput").value = "0";
+    }
+
+    async function saveProduct(e) {
+      e.preventDefault();
+      const name = document.getElementById("productNameInput").value.trim();
+      const code = document.getElementById("productCodeInput").value.trim();
+      const spec = document.getElementById("productSpecInput").value.trim();
+      let stock = parseInt(document.getElementById("productStockInput").value,10);
+      if (!name) {
+        alert("제품명은 필수야.");
+        return;
+      }
+      if (isNaN(stock) || stock < 0) stock = 0;
+
+      const payload = {
+        name,
+        code,
+        spec,
+        stock,
+        updatedAt: Date.now()
+      };
+
+      try {
+        if (editingProductId) {
+          await db.collection(PRODUCTS_COL).doc(editingProductId).set(payload,{merge:true});
+          showToast("제품 정보를 수정했어.");
+        } else {
+          payload.createdAt = Date.now();
+          await db.collection(PRODUCTS_COL).add(payload);
+          showToast("제품을 추가했어.");
+        }
+        resetProductForm();
+      } catch (e) {
+        console.error(e);
+        showToast("제품 저장 중 오류가 발생했어.");
+      }
+    }
+
+    function renderProductList() {
+      const tbody = document.querySelector("#productTable tbody");
+      const empty = document.getElementById("productEmptyText");
+      tbody.innerHTML = "";
+      if (!products.length) {
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+
+      products.forEach(p => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${p.name || ""}</td>
+          <td>${p.code || ""}</td>
+          <td>${p.spec || ""}</td>
+          <td>${p.stock != null ? p.stock : 0}</td>
+          <td class="actions">
+            <button class="btn btn-secondary btn-small" data-id="${p.id}" data-act="edit">수정</button>
+            <button class="btn btn-danger btn-small" data-id="${p.id}" data-act="del">삭제</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll("button").forEach(btn => {
+        const id = btn.dataset.id;
+        const act = btn.dataset.act;
+        if (act === "edit") {
+          btn.addEventListener("click", () => {
+            const p = products.find(x => x.id === id);
+            if (!p) return;
+            editingProductId = id;
+            document.getElementById("productNameInput").value = p.name || "";
+            document.getElementById("productCodeInput").value = p.code || "";
+            document.getElementById("productSpecInput").value = p.spec || "";
+            document.getElementById("productStockInput").value = p.stock != null ? p.stock : 0;
+          });
+        } else if (act === "del") {
+          btn.addEventListener("click", async () => {
+            if (!confirm("이 제품을 삭제할까? 재고 기록에는 더 이상 나오지 않아.")) return;
+            try {
+              await db.collection(PRODUCTS_COL).doc(id).delete();
+              showToast("제품을 삭제했어.");
+              if (editingProductId === id) resetProductForm();
+            } catch (e) {
+              console.error(e);
+              showToast("삭제 중 오류가 발생했어.");
+            }
+          });
+        }
+      });
+    }
+
+    function refreshProductSelect() {
+      const sel = document.getElementById("jobProductSelect");
+      sel.innerHTML = "";
+      if (!products.length) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "등록된 제품 없음";
+        sel.appendChild(opt);
+        return;
+      }
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "제품을 선택해 줘";
+      sel.appendChild(placeholder);
+      products.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = p.name + (p.code ? ` (${p.code})` : "");
+        sel.appendChild(opt);
+      });
+    }
+
+    /* ====== 테이프 재고 ====== */
+    let editingTapeId = null;
+
+    function initTapes() {
+      document.getElementById("tapeForm").addEventListener("submit", saveTape);
+      document.getElementById("tapeResetBtn").addEventListener("click", resetTapeForm);
+    }
+
+    function resetTapeForm() {
+      editingTapeId = null;
+      document.getElementById("tapeNameInput").value = "";
+      document.getElementById("tapeSpecInput").value = "";
+      document.getElementById("tapeStockInput").value = "0";
+      document.getElementById("tapeMemoInput").value = "";
+    }
+
+    async function saveTape(e) {
+      e.preventDefault();
+      const name = document.getElementById("tapeNameInput").value.trim();
+      const spec = document.getElementById("tapeSpecInput").value.trim();
+      const memo = document.getElementById("tapeMemoInput").value.trim();
+      let stock = parseInt(document.getElementById("tapeStockInput").value,10);
+      if (!name) {
+        alert("테이프 이름은 필수야.");
+        return;
+      }
+      if (isNaN(stock) || stock < 0) stock = 0;
+
+      const payload = {
+        name,
+        spec,
+        memo,
+        stock,
+        updatedAt: Date.now()
+      };
+
+      try {
+        if (editingTapeId) {
+          await db.collection(TAPES_COL).doc(editingTapeId).set(payload,{merge:true});
+          showToast("테이프 정보를 수정했어.");
+        } else {
+          payload.createdAt = Date.now();
+          await db.collection(TAPES_COL).add(payload);
+          showToast("테이프를 추가했어.");
+        }
+        resetTapeForm();
+      } catch (e) {
+        console.error(e);
+        showToast("테이프 저장 중 오류가 발생했어.");
+      }
+    }
+
+    function renderTapeList() {
+      const tbody = document.querySelector("#tapeTable tbody");
+      const empty = document.getElementById("tapeEmptyText");
+      tbody.innerHTML = "";
+      if (!tapes.length) {
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+
+      tapes.forEach(t => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${t.name || ""}</td>
+          <td>${t.spec || ""}</td>
+          <td>${t.stock != null ? t.stock : 0}</td>
+          <td class="actions">
+            <button class="btn btn-secondary btn-small" data-id="${t.id}" data-act="edit">수정</button>
+            <button class="btn btn-danger btn-small" data-id="${t.id}" data-act="del">삭제</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll("button").forEach(btn => {
+        const id = btn.dataset.id;
+        const act = btn.dataset.act;
+        if (act === "edit") {
+          btn.addEventListener("click", () => {
+            const t = tapes.find(x => x.id === id);
+            if (!t) return;
+            editingTapeId = id;
+            document.getElementById("tapeNameInput").value = t.name || "";
+            document.getElementById("tapeSpecInput").value = t.spec || "";
+            document.getElementById("tapeStockInput").value = t.stock != null ? t.stock : 0;
+            document.getElementById("tapeMemoInput").value = t.memo || "";
+          });
+        } else if (act === "del") {
+          btn.addEventListener("click", async () => {
+            if (!confirm("이 테이프 품목을 삭제할까? 재고 기록에는 더 이상 나오지 않아.")) return;
+            try {
+              await db.collection(TAPES_COL).doc(id).delete();
+              showToast("테이프를 삭제했어.");
+              if (editingTapeId === id) resetTapeForm();
+            } catch (e) {
+              console.error(e);
+              showToast("삭제 중 오류가 발생했어.");
+            }
+          });
+        }
+      });
+    }
+
+    function refreshTapeSelect() {
+      const sel = document.getElementById("jobTapeSelect");
+      sel.innerHTML = "";
+      if (!tapes.length) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "등록된 테이프 없음";
+        sel.appendChild(opt);
+        return;
+      }
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "테이프를 선택해 줘";
+      sel.appendChild(placeholder);
+      tapes.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t.id;
+        opt.textContent = t.name + (t.spec ? ` (${t.spec})` : "");
+        sel.appendChild(opt);
+      });
+    }
+
+    function refreshIncomingTapeSelect() {
+      const sel = document.getElementById("incomingTapeSelect");
+      if (!sel) return;
+      sel.innerHTML = "";
+      if (!tapes.length) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "테이프 품목이 없음 (테이프실에서 먼저 등록)";
+        sel.appendChild(opt);
+        return;
+      }
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "테이프를 선택해 줘";
+      sel.appendChild(placeholder);
+      tapes.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t.id;
+        opt.textContent = t.name + (t.spec ? ` (${t.spec})` : "");
+        sel.appendChild(opt);
+      });
+    }
+
+    /* ====== 작업 등록 / 목록 ====== */
+    function initJobs() {
+      document.getElementById("jobForm").addEventListener("submit", saveJob);
+      document.getElementById("jobResetBtn").addEventListener("click", resetJobForm);
+      document.getElementById("jobDateInput").value = todayString();
+    }
+
+    function resetJobForm() {
+      document.getElementById("jobDateInput").value = todayString();
+      document.getElementById("jobProductSelect").value = "";
+      document.getElementById("jobQtyInput").value = "1";
+      document.getElementById("jobTapeSelect").value = "";
+      document.getElementById("jobTapeQtyInput").value = "1";
+      document.getElementById("jobTargetSelect").value = "proc1";
+      document.getElementById("jobMemoInput").value = "";
+    }
+
+    async function saveJob(e) {
+      e.preventDefault();
+      const dateStr = document.getElementById("jobDateInput").value || todayString();
+      const productId = document.getElementById("jobProductSelect").value;
+      const tapeId = document.getElementById("jobTapeSelect").value;
+      let qty = parseInt(document.getElementById("jobQtyInput").value,10);
+      let tapeQty = parseInt(document.getElementById("jobTapeQtyInput").value,10);
+      const target = document.getElementById("jobTargetSelect").value;
+      const memo = document.getElementById("jobMemoInput").value.trim();
+
+      if (!productId) {
+        alert("제품을 선택해 줘.");
+        return;
+      }
+      if (!tapeId) {
+        alert("테이프를 선택해 줘.");
+        return;
+      }
+      if (isNaN(qty) || qty <= 0) qty = 1;
+      if (isNaN(tapeQty) || tapeQty <= 0) tapeQty = 1;
+
+      const product = products.find(p => p.id === productId);
+      const tape = tapes.find(t => t.id === tapeId);
+      if (!product || !tape) {
+        alert("제품이나 테이프 정보가 올바르지 않아.");
+        return;
+      }
+
+      // 재고 체크
+      let warn = "";
+      if (product.stock != null && product.stock < qty) {
+        warn += `제품 재고(${product.stock})보다 작업 수량(${qty})이 많아.\n`;
+      }
+      if (tape.stock != null && tape.stock < tapeQty) {
+        warn += `테이프 재고(${tape.stock})보다 사용 장수(${tapeQty})가 많아.\n`;
+      }
+      if (warn) {
+        warn += "그래도 작업을 저장할까?";
+        if (!confirm(warn)) return;
+      }
+
+      const jobPayload = {
+        date: dateStr,
+        productId,
+        productName: product.name || "",
+        productCode: product.code || "",
+        qty,
+        tapeId,
+        tapeName: tape.name || "",
+        tapeSpec: tape.spec || "",
+        tapeQty,
+        target,
+        memo,
+        createdAt: Date.now()
+      };
+
+      const productRef = db.collection(PRODUCTS_COL).doc(productId);
+      const tapeRef = db.collection(TAPES_COL).doc(tapeId);
+      const jobRef = db.collection(JOBS_COL).doc();
+
+      try {
+        await db.runTransaction(async (tx) => {
+          const pSnap = await tx.get(productRef);
+          const tSnap = await tx.get(tapeRef);
+          let pStock = (pSnap.exists && pSnap.data().stock != null) ? pSnap.data().stock : 0;
+          let tStock = (tSnap.exists && tSnap.data().stock != null) ? tSnap.data().stock : 0;
+          pStock = Math.max(0, pStock - qty);
+          tStock = Math.max(0, tStock - tapeQty);
+          tx.set(productRef, { stock: pStock, updatedAt: Date.now() }, {merge:true});
+          tx.set(tapeRef, { stock: tStock, updatedAt: Date.now() }, {merge:true});
+          tx.set(jobRef, jobPayload);
+        });
+        showToast("작업을 저장하고 재고를 반영했어.");
+        resetJobForm();
+      } catch (e) {
+        console.error(e);
+        showToast("작업 저장 중 오류가 발생했어.");
+      }
+    }
+
+    function renderJobList() {
+      const tbody = document.querySelector("#jobTable tbody");
+      const empty = document.getElementById("jobEmptyText");
+      tbody.innerHTML = "";
+      if (!jobs.length) {
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+
+      jobs.forEach(j => {
+        const tr = document.createElement("tr");
+        const targetLabel = j.target === "taesung" ? "태성" : "가공실1";
+        tr.innerHTML = `
+          <td>${j.date || ""}</td>
+          <td>${j.productName || ""}</td>
+          <td>${j.qty != null ? j.qty : ""}</td>
+          <td>${(j.tapeName || "")} (${j.tapeQty || 0})</td>
+          <td>${targetLabel}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* ====== 가공실 / 태성 - 테이프 가공 등록 ====== */
+    function initIncoming() {
+      document.getElementById("incomingForm").addEventListener("submit", saveIncoming);
+      document.getElementById("incomingResetBtn").addEventListener("click", resetIncomingForm);
+    }
+
+    function resetIncomingForm() {
+      const sel = document.getElementById("incomingTapeSelect");
+      if (sel) sel.value = "";
+      document.getElementById("incomingQtyInput").value = "1";
+      document.getElementById("incomingMemoInput").value = "";
+    }
+
+    async function saveIncoming(e) {
+      e.preventDefault();
+      const tapeId = document.getElementById("incomingTapeSelect").value;
+      let qty = parseInt(document.getElementById("incomingQtyInput").value,10);
+      const memo = document.getElementById("incomingMemoInput").value.trim();
+
+      if (!tapeId) {
+        alert("테이프를 선택해 줘.");
+        return;
+      }
+      if (isNaN(qty) || qty <= 0) qty = 1;
+
+      const tape = tapes.find(t => t.id === tapeId);
+      if (!tape) {
+        alert("테이프 정보가 올바르지 않아.");
+        return;
+      }
+
+      let fromRoom = "가공실";
+      if (currentRole === "proc1") fromRoom = "가공실1";
+      if (currentRole === "taesung") fromRoom = "태성";
+
+      const payload = {
+        tapeId,
+        tapeName: tape.name || "",
+        tapeSpec: tape.spec || "",
+        qty,
+        fromRoom,
+        memo,
+        createdAt: Date.now()
+      };
+
+      const tapeRef = db.collection(TAPES_COL).doc(tapeId);
+      const incomingRef = db.collection(INCOMING_COL).doc();
+
+      try {
+        await db.runTransaction(async (tx) => {
+          const tSnap = await tx.get(tapeRef);
+          let stock = (tSnap.exists && tSnap.data().stock != null) ? tSnap.data().stock : 0;
+          stock += qty;
+          tx.set(tapeRef, { stock, updatedAt: Date.now() }, {merge:true});
+          tx.set(incomingRef, payload);
+        });
+        showToast("테이프 가공 올리기를 등록했어.");
+        resetIncomingForm();
+      } catch (e) {
+        console.error(e);
+        showToast("등록 중 오류가 발생했어.");
+      }
+    }
+
+    function renderTodayIncomingList() {
+      const tbody = document.querySelector("#incomingTable tbody");
+      const empty = document.getElementById("incomingEmptyText");
+      if (!tbody || !empty) return;
+      tbody.innerHTML = "";
+
+      const today = todayString();
+      const filtered = incomings.filter(i => {
+        const d = new Date(i.createdAt || 0);
+        if (isNaN(d.getTime())) return false;
+        const ds = d.toISOString().slice(0,10);
+        return ds === today && (!currentRole || i.fromRoom === (currentRole === "proc1" ? "가공실1" : currentRole === "taesung" ? "태성" : i.fromRoom));
+      });
+
+      if (!filtered.length) {
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+
+      filtered.forEach(i => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${formatDateTime(i.createdAt)}</td>
+          <td>${i.tapeName || ""}</td>
+          <td>${i.qty != null ? i.qty : 0}</td>
+          <td>${i.memo || ""}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* ====== 히스토리 (작업 + 테이프 가공) ====== */
+    function renderHistoryList() {
+      const tbody = document.querySelector("#historyTable tbody");
+      const empty = document.getElementById("historyEmptyText");
+      tbody.innerHTML = "";
+
+      const rows = [];
+
+      jobs.forEach(j => {
+        rows.push({
+          type: "작업",
+          time: j.createdAt || 0,
+          text: `[${j.date || ""}] ${j.productName || ""} ${j.qty || 0}장 / 테이프 ${j.tapeName || ""} ${j.tapeQty || 0}장 → ${
+            j.target === "taesung" ? "태성" : "가공실1"
+          }${j.memo ? " ("+j.memo+")" : ""}`
+        });
+      });
+
+      incomings.forEach(i => {
+        rows.push({
+          type: "테이프 가공",
+          time: i.createdAt || 0,
+          text: `${i.fromRoom || ""}에서 ${i.tapeName || ""} ${i.qty || 0}장 올림${i.memo ? " ("+i.memo+")" : ""}`
+        });
+      });
+
+      rows.sort((a,b) => b.time - a.time);
+
+      if (!rows.length) {
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+
+      rows.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${formatDateTime(r.time)}</td>
+          <td><span class="chip">${r.type}</span></td>
+          <td>${r.text}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* ====== 요약 숫자 ====== */
+    function updateSummary() {
+      const pCountEl = document.getElementById("summaryProducts");
+      const tCountEl = document.getElementById("summaryTapes");
+      const jTodayEl = document.getElementById("summaryJobsToday");
+
+      const pCount = products.length;
+      const tCount = tapes.length;
+
+      const today = todayString();
+      const todayJobs = jobs.filter(j => j.date === today).length;
+
+      pCountEl.textContent = `제품 ${pCount}종`;
+      tCountEl.textContent = `테이프 ${tCount}종`;
+      jTodayEl.textContent = `오늘 작업 ${todayJobs}건`;
+    }
+  </script>
+</body>
+</html>
