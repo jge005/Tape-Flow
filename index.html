@@ -3,199 +3,301 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Tape Manager</title>
+<title>Tape Flow</title>
 
 <style>
+*{
+  box-sizing:border-box;
+}
+
 body{
-  font-family: Pretendard, sans-serif;
-  background:#f5f7ff;
+  font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   margin:0;
   padding:0;
+  background:linear-gradient(180deg,#e4f1ff,#f5f7ff);
 }
 
-.nav{
-  display:flex;
-  gap:10px;
-  padding:15px;
+/* 전체 레이아웃 박스 – 가운데 정렬 + 좌우 여백 */
+.app-root{
+  max-width:900px;
+  margin:0 auto 40px;
+  padding:16px 16px 40px;
 }
 
-.nav button{
-  padding:10px 16px;
-  border:none;
-  border-radius:12px;
-  background:#d9dffe;
-  color:#333;
-  font-size:16px;
-}
-
-.nav button.active{
-  background:#5665ff;
-  color:#fff;
-}
-
+/* 타이틀 */
 .app-title{
   font-size:28px;
-  padding:20px;
   font-weight:800;
   display:flex;
   align-items:center;
   gap:10px;
+  padding:12px 4px 18px;
+  color:#1f2d5f;
+}
+.app-title span{
+  font-size:30px;
 }
 
+/* 상단 네비 */
+.nav{
+  display:flex;
+  gap:10px;
+  padding:4px 0 18px;
+  overflow-x:auto;
+}
+.nav button{
+  flex:1;
+  min-width:0;
+  padding:10px 14px;
+  border:none;
+  border-radius:999px;
+  background:rgba(255,255,255,0.7);
+  color:#44506b;
+  font-size:14px;
+  font-weight:600;
+  box-shadow:0 4px 12px rgba(77,105,255,0.08);
+  white-space:nowrap;
+}
+.nav button.active{
+  background:linear-gradient(135deg,#7ea6ff,#4f63ff);
+  color:#fff;
+}
+
+/* 페이지 공통 */
 .page{
   display:none;
-  padding:20px;
+  padding-top:4px;
 }
-
 .page.active{
   display:block;
 }
 
+/* 라벨/입력 */
+label{
+  font-size:13px;
+  color:#48536b;
+  display:block;
+  margin-top:10px;
+  margin-bottom:2px;
+}
+
 input, select{
   width:100%;
-  padding:12px;
-  border:1px solid #ccc;
-  border-radius:10px;
-  margin-bottom:10px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid #d3dbff;
+  background:#ffffffcc;
+  font-size:14px;
+  outline:none;
+}
+input:focus, select:focus{
+  border-color:#6d81ff;
+  box-shadow:0 0 0 2px rgba(109,129,255,0.18);
 }
 
+/* 메인 버튼 */
 button.add{
-  background:#5665ff;
-  color:white;
-  padding:12px 16px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 18px;
+  margin-top:14px;
   border:none;
-  border-radius:10px;
-  margin-top:10px;
+  border-radius:999px;
+  background:linear-gradient(135deg,#7ea6ff,#4f63ff);
+  color:#fff;
+  font-size:14px;
+  font-weight:600;
+  box-shadow:0 6px 16px rgba(79,99,255,0.3);
 }
 
+/* 작은 버튼 */
+button.small{
+  border:none;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:11px;
+  font-weight:500;
+  background:#e4ebff;
+  color:#425085;
+  margin-top:4px;
+  margin-right:4px;
+}
+
+/* 카드/박스 */
 .table-box{
   width:100%;
-  background:white;
-  border-radius:12px;
+  background:#ffffff;
+  border-radius:18px;
   padding:10px;
-  margin-top:15px;
+  margin-top:16px;
+  box-shadow:0 10px 25px rgba(71,93,255,0.08);
 }
 
+/* 표 */
 table{
   width:100%;
   border-collapse:collapse;
 }
+th, td{
+  padding:7px 4px;
+  font-size:12px;
+  text-align:left;
+  border-bottom:1px solid #f0f2ff;
+}
+th{
+  color:#4d5780;
+  font-weight:600;
+}
 
-th,td{
-  border-bottom:1px solid #eee;
-  padding:8px;
+/* 잔량 카드 */
+.summary-card{
+  background:#ffffff;
+  border-radius:18px;
+  padding:12px 14px;
+  margin-bottom:12px;
+  box-shadow:0 10px 25px rgba(71,93,255,0.1);
+  font-size:13px;
+  color:#2f385a;
+}
+.summary-card b{
   font-size:14px;
 }
-
-.summary-card{
-  background:white;
-  padding:15px;
-  border-radius:12px;
-  margin-bottom:12px;
-  box-shadow:0 2px 4px rgba(0,0,0,0.08);
+.summary-card input{
+  margin-top:4px;
+  margin-bottom:4px;
 }
 
+/* 안내 텍스트 */
+.info-text{
+  font-size:11px;
+  color:#7b86aa;
+  margin-top:4px;
+}
+
+/* 작은 제목 느낌 */
+.section-title{
+  font-size:14px;
+  font-weight:600;
+  color:#2c355a;
+  margin-top:4px;
+  margin-bottom:6px;
+}
 </style>
 </head>
 
 <body>
+<div class="app-root">
 
-<div class="app-title">📦 Tape Manager</div>
+  <div class="app-title">
+    <span>📦</span> TAPE FLOW
+  </div>
 
-<div class="nav">
-  <button id="nav-tape" class="active">테이프 설정</button>
-  <button id="nav-stock">작업전 재고</button>
-  <button id="nav-work">작업 등록</button>
-  <button id="nav-summary">잔량</button>
+  <div class="nav">
+    <button id="nav-tape" class="active">테이프 설정</button>
+    <button id="nav-stock">작업전 재고</button>
+    <button id="nav-work">작업 등록</button>
+    <button id="nav-summary">잔량</button>
+  </div>
+
+  <!-- ================= 테이프 설정 ================= -->
+  <div class="page active" id="page-tape">
+    <div class="section-title">테이프 기본 정보</div>
+
+    <label>테이프명</label>
+    <input id="tapeName" placeholder="예: 6855, 6491">
+
+    <label>EA(제품 수량) / 1장당</label>
+    <input id="eaPerSheet" placeholder="예: 6">
+
+    <label>출처</label>
+    <select id="tapeSource">
+      <option value="가공실">가공실</option>
+      <option value="태성">태성</option>
+    </select>
+
+    <button class="add" onclick="addTape()">테이프 추가</button>
+
+    <div id="tapeList" class="table-box"></div>
+  </div>
+
+  <!-- ================= 작업전 재고 ================= -->
+  <div class="page" id="page-stock">
+    <div class="section-title">작업전 제품 재고</div>
+
+    <label>제품명</label>
+    <input id="stockName" placeholder="예: 7125J">
+
+    <label>수량(EA)</label>
+    <input id="stockEa" type="number" placeholder="예: 2520">
+
+    <label>세트 / LOT 메모</label>
+    <input id="stockLot" placeholder="예: LOT123 / 세트1">
+
+    <button class="add" onclick="addStock()">재고 추가</button>
+
+    <div id="stockList" class="table-box"></div>
+
+    <button class="add" style="margin-top:12px;" onclick="downloadStockCsv()">재고 CSV 다운로드</button>
+  </div>
+
+  <!-- ================= 작업 등록 ================= -->
+  <div class="page" id="page-work">
+    <div class="section-title">오늘 작업 등록</div>
+
+    <label>작업 날짜</label>
+    <input id="workDate" type="date">
+
+    <label>제품명</label>
+    <input id="workName" placeholder="예: 7125J 2520EA 세트1">
+
+    <label>사용 테이프</label>
+    <select id="workTape"></select>
+
+    <label>사용 EA (개수)</label>
+    <input id="workEa" type="number" placeholder="입력 시 테이프 장수 자동 계산">
+
+    <label>테이프 장수 (소요량)</label>
+    <input id="workSheets" type="number" placeholder="입력 시 EA 자동 계산">
+
+    <label>불량(장)</label>
+    <input id="workBad" type="number" value="0">
+
+    <button class="add" onclick="addWork()">작업 등록</button>
+
+    <div id="workList" class="table-box"></div>
+
+    <button class="add" style="margin-top:12px;" onclick="downloadWorkCsv()">작업 내역 CSV 다운로드</button>
+  </div>
+
+  <!-- ================= 잔량 / 입고 / 수정 ================= -->
+  <div class="page" id="page-summary">
+    <div class="section-title">테이프 잔량 & 입고 기록</div>
+    <div class="info-text">
+      • 입고 장수 = 가공실/태성에서 올려준 테이프 장수 기록<br>
+      • 현재 잔량 = 입고 합계 − (소요 장수 + 불량 장수)<br>
+      • 실제랑 다를 때는 잔량 수정으로 직접 맞출 수 있어.
+    </div>
+
+    <div id="summaryArea" style="margin-top:10px;"></div>
+  </div>
+
 </div>
-
-<!-- ======================== 테이프 설정 ============================= -->
-<div class="page active" id="page-tape">
-
-  <label>테이프명</label>
-  <input id="tapeName" placeholder="예: 25*6000">
-
-  <label>EA(제품 수량)/1장당</label>
-  <input id="eaPerSheet" placeholder="예: 6">
-
-  <label>출처</label>
-  <select id="tapeSource">
-    <option value="가공실">가공실</option>
-    <option value="태성">태성</option>
-  </select>
-
-  <button class="add" onclick="addTape()">추가</button>
-
-  <div id="tapeList" class="table-box"></div>
-
-</div>
-
-
-<!-- ======================== 작업전 재고 ============================= -->
-<div class="page" id="page-stock">
-
-  <label>제품명</label>
-  <input id="stockName" placeholder="예: 7125J">
-
-  <label>수량(EA)</label>
-  <input id="stockEa" type="number" placeholder="예: 2520">
-
-  <label>세트 구분</label>
-  <input id="stockLot" placeholder="LOT / 비고 등">
-
-  <button class="add" onclick="addStock()">추가</button>
-
-  <div id="stockList" class="table-box"></div>
-
-</div>
-
-
-<!-- ======================== 작업 등록 ============================= -->
-<div class="page" id="page-work">
-
-  <label>제품명</label>
-  <input id="workName">
-
-  <label>사용 테이프</label>
-  <select id="workTape"></select>
-
-  <label>사용 EA</label>
-  <input id="workEa" type="number" placeholder="입력 시 테이프장수 자동 계산">
-
-  <label>테이프 장수</label>
-  <input id="workSheets" type="number" placeholder="입력 시 EA 자동 계산">
-
-  <label>불량(장)</label>
-  <input id="workBad" type="number" value="0">
-
-  <button class="add" onclick="addWork()">등록</button>
-
-  <div id="workList" class="table-box"></div>
-
-</div>
-
-
-<!-- ======================== 잔량 ============================= -->
-<div class="page" id="page-summary">
-  <div id="summaryArea"></div>
-</div>
-
-
 
 <script>
-// ======================= 저장공간 =======================
+/* ===== 기존 로직 그대로 (이름만 Tape Flow로 바뀜) ===== */
 let tapes = JSON.parse(localStorage.getItem("tapes") || "[]");
 let stocks = JSON.parse(localStorage.getItem("stocks") || "[]");
 let works = JSON.parse(localStorage.getItem("works") || "[]");
+let tapeInbound = JSON.parse(localStorage.getItem("tapeInbound") || "[]");
 
 function save(){
   localStorage.setItem("tapes", JSON.stringify(tapes));
   localStorage.setItem("stocks", JSON.stringify(stocks));
   localStorage.setItem("works", JSON.stringify(works));
+  localStorage.setItem("tapeInbound", JSON.stringify(tapeInbound));
 }
 
-
-// ======================= 페이지 전환 =======================
 function openPage(id){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.getElementById("page-"+id).classList.add("active");
@@ -212,24 +314,29 @@ document.getElementById("nav-stock").addEventListener("click",()=>openPage("stoc
 document.getElementById("nav-work").addEventListener("click",()=>openPage("work"));
 document.getElementById("nav-summary").addEventListener("click",()=>openPage("summary"));
 
-
-// ======================= 테이프 설정 =======================
+/* ---- 테이프 설정 ---- */
 function addTape(){
   let name = tapeName.value.trim();
   let ea = Number(eaPerSheet.value);
   let src = tapeSource.value;
 
-  if(!name || !ea){ alert("입력 부족"); return; }
-
-  tapes.push({name, ea, src});
+  if(!name || !ea){
+    alert("테이프명과 EA/장 값을 입력해줘!");
+    return;
+  }
+  tapes.push({name, ea, src, manualRemain:null});
   save();
   renderTapeList();
-
+  refreshWorkTapeList();
   tapeName.value="";
   eaPerSheet.value="";
 }
 
 function renderTapeList(){
+  if(tapes.length===0){
+    tapeList.innerHTML = "<div class='info-text'>등록된 테이프가 없습니다.</div>";
+    return;
+  }
   let html = `<table><tr><th>테이프</th><th>EA/장</th><th>출처</th></tr>`;
   tapes.forEach(t=>{
     html += `<tr><td>${t.name}</td><td>${t.ea}</td><td>${t.src}</td></tr>`;
@@ -240,57 +347,84 @@ function renderTapeList(){
 renderTapeList();
 
 function refreshWorkTapeList(){
-  workTape.innerHTML = tapes.map(t=>`<option>${t.name}</option>`).join("");
+  if(tapes.length===0){
+    workTape.innerHTML = "<option value=''>테이프 없음</option>";
+    return;
+  }
+  workTape.innerHTML = tapes.map(t=>`<option value="${t.name}">${t.name}</option>`).join("");
 }
 
-
-// ======================= 작업전 재고 =======================
+/* ---- 작업전 재고 ---- */
 function addStock(){
   let name = stockName.value.trim();
   let ea = Number(stockEa.value);
   let lot = stockLot.value.trim();
+  let date = new Date().toISOString().slice(0,10);
 
-  if(!name || !ea){ alert("입력 부족"); return; }
-
-  stocks.push({name, ea, lot});
+  if(!name || !ea){
+    alert("제품명과 수량(EA)을 입력해줘!");
+    return;
+  }
+  stocks.push({name, ea, lot, date});
   save();
   renderStockList();
-
   stockName.value="";
   stockEa.value="";
   stockLot.value="";
 }
 
 function renderStockList(){
-  let html = `<table><tr><th>제품명</th><th>EA</th><th>LOT</th></tr>`;
+  if(stocks.length===0){
+    stockList.innerHTML = "<div class='info-text'>등록된 작업전 재고가 없습니다.</div>";
+    return;
+  }
+  let html = `<table><tr><th>날짜</th><th>제품명</th><th>EA</th><th>세트/LOT</th></tr>`;
   stocks.forEach(s=>{
-    html+=`<tr><td>${s.name}</td><td>${s.ea}</td><td>${s.lot}</td></tr>`;
+    html+=`<tr>
+      <td>${s.date||""}</td>
+      <td>${s.name}</td>
+      <td>${s.ea}</td>
+      <td>${s.lot}</td>
+    </tr>`;
   });
   html+=`</table>`;
   stockList.innerHTML = html;
 }
 renderStockList();
 
-
-// ======================= 작업 등록 =======================
+/* ---- 작업 등록 ---- */
 function addWork(){
   let name = workName.value.trim();
   let tape = workTape.value;
   let ea = Number(workEa.value);
   let sheet = Number(workSheets.value);
   let bad = Number(workBad.value || 0);
+  let date = workDate.value || new Date().toISOString().slice(0,10);
 
+  if(!name || !tape){
+    alert("제품명과 테이프를 선택해줘!");
+    return;
+  }
   let tapeObj = tapes.find(t=>t.name===tape);
-  if(!name || !tapeObj) return alert("입력 오류");
+  if(!tapeObj){
+    alert("테이프 설정이 없습니다.");
+    return;
+  }
 
-  // 둘 중 하나만 입력해도 자동계산
-  if(ea && !sheet) sheet = Math.ceil(ea / tapeObj.ea);
-  else if(sheet && !ea) ea = sheet * tapeObj.ea;
+  if(ea && !sheet){
+    sheet = Math.ceil(ea / tapeObj.ea);
+  }else if(sheet && !ea){
+    ea = sheet * tapeObj.ea;
+  }
+  if(!ea || !sheet){
+    alert("EA 또는 테이프 장수 중 하나는 반드시 입력해야 해!");
+    return;
+  }
 
-  works.push({name, tape, ea, sheet, bad});
+  works.push({name, tape, ea, sheet, bad, date});
   save();
   renderWorkList();
-
+  renderSummary();
   workName.value="";
   workEa.value="";
   workSheets.value="";
@@ -298,48 +432,160 @@ function addWork(){
 }
 
 function renderWorkList(){
-  let html = `<table><tr><th>제품명</th><th>EA</th><th>장수</th><th>불량</th></tr>`;
+  if(works.length===0){
+    workList.innerHTML = "<div class='info-text'>등록된 작업 내역이 없습니다.</div>";
+    return;
+  }
+  let html = `<table><tr><th>날짜</th><th>제품명</th><th>테이프</th><th>EA</th><th>소요장수</th><th>불량장수</th></tr>`;
   works.forEach(w=>{
-    html+=`<tr><td>${w.name}</td><td>${w.ea}</td><td>${w.sheet}</td><td>${w.bad}</td></tr>`;
+    html+=`<tr>
+      <td>${w.date || ""}</td>
+      <td>${w.name}</td>
+      <td>${w.tape}</td>
+      <td>${w.ea}</td>
+      <td>${w.sheet}</td>
+      <td>${w.bad}</td>
+    </tr>`;
   });
   html+=`</table>`;
   workList.innerHTML = html;
 }
 renderWorkList();
 
-
-// ======================= 잔량 =======================
+/* ---- 잔량 / 입고 / 수정 ---- */
 function renderSummary(){
+  if(tapes.length===0){
+    summaryArea.innerHTML = "<div class='info-text'>먼저 테이프를 등록해줘.</div>";
+    return;
+  }
   let area = "";
+  tapes.forEach((t,idx)=>{
+    let inbound = 0;
+    tapeInbound.forEach(e=>{
+      if(e.tape === t.name) inbound += Number(e.sheets)||0;
+    });
 
-  tapes.forEach(t=>{
-    let inStock = 0;
     let used = 0;
     let bad = 0;
-
-    // 작업전 재고는 "EA 단위" 이므로 테이프 사용량과 직접 관계 없음
-
-    // 실제 테이프 사용량
     works.forEach(w=>{
       if(w.tape === t.name){
-        used += w.sheet;
-        bad += w.bad;
+        used += Number(w.sheet)||0;
+        bad  += Number(w.bad)||0;
       }
     });
 
+    let autoRemain = inbound - used - bad;
+    let manual = (typeof t.manualRemain === "number" && !Number.isNaN(t.manualRemain));
+    let remain = manual ? t.manualRemain : autoRemain;
+
     area += `
       <div class="summary-card">
-        <b>${t.name}</b><br>
-        • 총 사용 장수: ${used}<br>
-        • 불량 장수: ${bad}<br>
-        <small>(현재 잔량은 테이프 입고 기능 추가하면 자동계산됨)</small>
+        <b>${t.name}</b> <span style="font-size:12px;color:#7b86aa;">(${t.src})</span><br>
+        • 입고 합계: <b>${inbound}</b> 장<br>
+        • 사용(소요+불량): <b>${used+bad}</b> 장 (소요 ${used}, 불량 ${bad})<br>
+        • 현재 잔량: <b>${remain}</b> 장 ${manual ? "<span style='color:#e05;'>[수동]</span>" : "<span style='color:#3aa36d;'>[자동]</span>"}<br><br>
+
+        <div style="margin-bottom:6px;">
+          <div style="font-size:12px;margin-bottom:2px;">입고 장수 추가</div>
+          <input id="in_${idx}" type="number" placeholder="예: 120">
+          <button class="small" onclick="addInbound(${idx})">입고 추가</button>
+        </div>
+
+        <div>
+          <div style="font-size:12px;margin-bottom:2px;">잔량 직접 수정</div>
+          <input id="set_${idx}" type="number" placeholder="현재 실제 잔량 입력">
+          <button class="small" onclick="setRemain(${idx})">잔량 수정</button>
+          ${manual ? `<button class="small" onclick="clearRemain(${idx})">자동계산 되돌리기</button>` : ""}
+        </div>
       </div>
     `;
   });
-
   summaryArea.innerHTML = area;
 }
+renderSummary();
 
+function addInbound(idx){
+  let input = document.getElementById("in_"+idx);
+  if(!input) return;
+  let val = Number(input.value);
+  if(!val){
+    alert("입고 장수를 입력해줘!");
+    return;
+  }
+  let date = new Date().toISOString().slice(0,10);
+  tapeInbound.push({tape: tapes[idx].name, sheets:val, date});
+  save();
+  input.value = "";
+  renderSummary();
+}
+
+function setRemain(idx){
+  let input = document.getElementById("set_"+idx);
+  if(!input) return;
+  let val = input.value;
+  if(val === ""){
+    alert("잔량 숫자를 입력해줘!");
+    return;
+  }
+  tapes[idx].manualRemain = Number(val);
+  save();
+  renderSummary();
+}
+
+function clearRemain(idx){
+  tapes[idx].manualRemain = null;
+  save();
+  renderSummary();
+}
+
+/* ---- CSV 다운로드 ---- */
+function downloadCsv(filename, rows){
+  if(!rows || rows.length===0){
+    alert("다운로드할 데이터가 없습니다.");
+    return;
+  }
+  const csv = rows.map(r =>
+    r.map(v => {
+      let s = String(v ?? "");
+      s = s.replace(/"/g,'""');
+      return `"${s}"`;
+    }).join(",")
+  ).join("\n");
+
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function downloadStockCsv(){
+  const rows = [["날짜","제품명","EA","세트/LOT"]];
+  stocks.forEach(s=>{
+    rows.push([s.date||"", s.name, s.ea, s.lot]);
+  });
+  downloadCsv("stocks.csv", rows);
+}
+
+function downloadWorkCsv(){
+  const rows = [["날짜","제품명","테이프","EA","소요장수","불량장수"]];
+  works.forEach(w=>{
+    rows.push([w.date||"", w.name, w.tape, w.ea, w.sheet, w.bad]);
+  });
+  downloadCsv("works.csv", rows);
+}
+
+/* ---- 초기 설정 ---- */
+(function init(){
+  const today = new Date().toISOString().slice(0,10);
+  const dateInput = document.getElementById("workDate");
+  if(dateInput && !dateInput.value) dateInput.value = today;
+  refreshWorkTapeList();
+})();
 </script>
 
 </body>
