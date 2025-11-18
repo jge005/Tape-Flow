@@ -2,1224 +2,1308 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tape Flow</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    :root{
-      --bg: #ecf3ff;
-      --bg-soft:#f6f8ff;
-      --card:#ffffff;
-      --text:#1b2440;
-      --text-sub:#6a7696;
-      --accent:#4f63ff;
-      --accent-soft:#7ea6ff;
-      --danger:#ff5f7a;
-      --border:#dde3f6;
-      --radius-xl:22px;
-      --radius-lg:18px;
-    }
-    body.theme-dark{
-      --bg:#050817;
-      --bg-soft:#0b1024;
-      --card:#111832;
-      --text:#e5e9ff;
-      --text-sub:#9faaf0;
-      --accent:#8aa4ff;
-      --accent-soft:#5f73ff;
-      --danger:#ff748b;
-      --border:#303a68;
+    :root {
+      --bg-main-light: #f3f6ff;
+      --bg-card-light: #ffffff;
+      --bg-accent-light: linear-gradient(135deg, #a8c5ff, #4f7dff);
+      --text-main-light: #111827;
+      --text-sub-light: #6b7280;
+      --border-light: #e5e7eb;
+
+      --bg-main-dark: #050816;
+      --bg-card-dark: #111827;
+      --bg-accent-dark: radial-gradient(circle at top left, #4f7dff, #0f172a);
+      --text-main-dark: #e5e7ff;
+      --text-sub-dark: #9ca3af;
+      --border-dark: #1f2933;
+
+      --primary: #4f7dff;
+      --primary-soft: #e0ebff;
+      --danger: #f97373;
+      --radius-lg: 18px;
+      --radius-md: 12px;
     }
 
-    *{box-sizing:border-box;}
-    body{
-      margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
-      background:linear-gradient(180deg,#dce8ff 0%,#f6f8ff 45%,#fdfbff 100%);
-      color:var(--text);
-    }
-    body.theme-dark{
-      background:radial-gradient(circle at top,#151d41 0,#050817 55%,#020311 100%);
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+        "Noto Sans KR", sans-serif;
     }
 
-    .app{
-      max-width:900px;
-      margin:0 auto;
-      padding:18px 14px 40px;
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-main-light);
+      color: var(--text-main-light);
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* ---------- 헤더 ---------- */
-    header{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin-bottom:10px;
-    }
-    header .logo-box{
-      width:40px;
-      height:40px;
-      border-radius:14px;
-      background:linear-gradient(135deg,#ffb86c,#ff7eb3);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow:0 8px 18px rgba(0,0,0,0.18);
-    }
-    header .logo-box span{
-      font-size:22px;
-    }
-    header h1{
-      margin:0;
-      font-size:23px;
-      letter-spacing:0.06em;
-    }
-    header p{
-      margin:2px 0 0;
-      font-size:11px;
-      color:var(--text-sub);
+    body.dark {
+      background: var(--bg-main-dark);
+      color: var(--text-main-dark);
     }
 
-    /* ---------- 네비게이션 탭 ---------- */
-    .nav{
-      display:flex;
-      gap:8px;
-      padding:8px 2px 16px;
-      overflow-x:auto;
-    }
-    .nav::-webkit-scrollbar{display:none;}
-    .nav button{
-      flex:0 0 auto;
-      padding:8px 15px;
-      border:none;
-      border-radius:999px;
-      background:rgba(255,255,255,0.9);
-      color:#5a6581;
-      font-size:12px;
-      font-weight:600;
-      white-space:nowrap;
-      box-shadow:0 3px 10px rgba(60,88,180,0.12);
-    }
-    body.theme-dark .nav button{
-      background:#111832;
-      color:#cdd5ff;
-      box-shadow:0 4px 14px rgba(0,0,0,0.55);
-    }
-    .nav button.active{
-      background:linear-gradient(135deg,#8cb0ff,#4f63ff);
-      color:#fff;
-      box-shadow:0 6px 18px rgba(65,92,210,0.45);
+    .app {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 16px 14px 32px;
     }
 
-    /* ---------- 카드 공통 ---------- */
-    .card{
-      background:var(--card);
-      border-radius:var(--radius-xl);
-      padding:16px 14px 18px;
-      box-shadow:0 10px 28px rgba(35,60,130,0.12);
-      margin-bottom:14px;
-      border:1px solid rgba(255,255,255,0.7);
-    }
-    body.theme-dark .card{
-      box-shadow:0 18px 40px rgba(0,0,0,0.7);
-      border:1px solid rgba(78,96,167,0.6);
+    header.app-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
     }
 
-    h2{
-      margin:0 0 6px;
-      font-size:17px;
-    }
-    .sub{
-      font-size:12px;
-      color:var(--text-sub);
-      margin-bottom:10px;
-    }
-
-    /* ---------- 폼 ---------- */
-    .field{
-      margin-bottom:9px;
-    }
-    .field label{
-      display:block;
-      font-size:12px;
-      margin-bottom:4px;
-    }
-    input, select{
-      width:100%;
-      padding:9px 10px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      font-size:13px;
-      outline:none;
-      background:rgba(255,255,255,0.96);
-    }
-    body.theme-dark input,
-    body.theme-dark select{
-      background:#10162f;
-      border-color:#35406d;
-      color:var(--text);
-    }
-    input::placeholder{color:#a8b0d0;}
-
-    .btn{
-      border:none;
-      border-radius:999px;
-      padding:8px 17px;
-      font-size:13px;
-      font-weight:600;
-      cursor:pointer;
-      background:linear-gradient(135deg,#8cb0ff,#4f63ff);
-      color:#fff;
-      box-shadow:0 10px 24px rgba(35,75,200,0.4);
-    }
-    .btn-secondary{
-      background:rgba(255,255,255,0.96);
-      color:var(--text);
-      box-shadow:0 6px 16px rgba(40,54,104,0.14);
-    }
-    .btn-danger{
-      background:var(--danger);
-      box-shadow:0 8px 18px rgba(255,95,122,0.55);
-    }
-    .btn-sm{padding:6px 11px;font-size:11px;}
-
-    /* ---------- 테이블 ---------- */
-    table{
-      width:100%;
-      border-collapse:collapse;
-      font-size:11px;
-    }
-    th,td{
-      padding:7px 8px;
-      text-align:left;
-      white-space:nowrap;
-    }
-    th{
-      font-size:11px;
-      color:var(--text-sub);
-      border-bottom:1px solid rgba(210,218,243,0.9);
-      background:rgba(255,255,255,0.8);
-    }
-    tbody tr:nth-child(2n){
-      background:rgba(255,255,255,0.8);
-    }
-    tbody tr:last-child td{
-      border-bottom:none;
-    }
-    tbody td{
-      border-bottom:1px solid rgba(223,229,246,0.7);
+    .logo-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-accent-light);
+      box-shadow: 0 10px 25px rgba(79, 125, 255, 0.35);
     }
 
-    #prod-list-wrap,
-    #job-list-wrap,
-    #tape-stock-table-wrap{
-      border-radius:var(--radius-lg);
-      background:var(--bg-soft);
-      padding:4px 4px 0;
+    body.dark .logo-box {
+      background: var(--bg-accent-dark);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
     }
 
-    .tag{
-      display:inline-block;
-      padding:2px 7px;
-      border-radius:999px;
-      background:rgba(127,173,255,0.12);
-      color:var(--accent);
-      font-size:10px;
-      margin-left:4px;
+    .logo-box span {
+      font-size: 26px;
     }
 
-    .tab-pane{display:none;}
-    .tab-pane.active{display:block;}
-
-    .flex-between{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:8px;
-    }
-    .flex-row{
-      display:flex;
-      gap:8px;
-    }
-    .flex-row > .field{flex:1;}
-    @media(max-width:600px){
-      .flex-row{flex-direction:column;}
+    header .title-wrap h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 0.06em;
+      font-weight: 800;
     }
 
-    .suggestions{
-      margin-top:3px;
-      display:flex;
-      flex-wrap:wrap;
-      gap:4px;
-    }
-    .suggestions button{
-      border:none;
-      border-radius:999px;
-      padding:4px 8px;
-      font-size:10px;
-      background:rgba(255,255,255,0.95);
-      color:var(--text-sub);
-      box-shadow:0 3px 9px rgba(0,0,0,0.08);
+    header .title-wrap p {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--text-sub-light);
     }
 
-    .note{
-      font-size:11px;
-      color:var(--text-sub);
-      margin-top:3px;
+    body.dark header .title-wrap p {
+      color: var(--text-sub-dark);
     }
 
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:4px;
-      font-size:10px;
-      padding:3px 7px;
-      border-radius:999px;
-      background:rgba(0,0,0,0.03);
-      color:var(--text-sub);
+    /* 탭 네비게이션 */
+    .tab-bar {
+      display: flex;
+      overflow-x: auto;
+      gap: 8px;
+      padding: 4px 2px 10px;
+      margin-bottom: 10px;
+      scrollbar-width: none;
     }
 
-    /* ---------- 잠금 화면 ---------- */
-    #lock-screen{
-      position:fixed;
-      inset:0;
-      background:linear-gradient(180deg,#dfe9ff 0%,#f7f8ff 55%,#ffffff 100%);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:20;
+    .tab-bar::-webkit-scrollbar {
+      display: none;
     }
-    body.theme-dark #lock-screen{
-      background:radial-gradient(circle at top,#151d41 0,#050817 60%,#020311 100%);
+
+    .tab-btn {
+      flex: 0 0 auto;
+      border: none;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      background: transparent;
+      color: var(--text-sub-light);
+      border: 1px solid transparent;
+      transition: all 0.16s ease;
+      white-space: nowrap;
     }
-    #lock-screen .panel{
-      width:90%;
-      max-width:360px;
-      background:var(--card);
-      border-radius:22px;
-      padding:18px 16px 20px;
-      box-shadow:0 18px 40px rgba(0,0,0,0.65);
-      border:1px solid rgba(255,255,255,0.35);
-      text-align:center;
+
+    body.dark .tab-btn {
+      color: var(--text-sub-dark);
     }
-    #lock-screen h2{margin-bottom:6px;font-size:18px;}
-    #lock-screen p{margin-top:0;font-size:11px;color:var(--text-sub);}
-    #lock-error{color:var(--danger);font-size:11px;min-height:14px;margin-top:4px;}
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 8px 22px rgba(79, 125, 255, 0.55);
+    }
+
+    .tab-btn:not(.active):hover {
+      background: rgba(79, 125, 255, 0.07);
+      border-color: rgba(79, 125, 255, 0.2);
+    }
+
+    /* 카드 & 섹션 */
+    .tab-panel {
+      display: none;
+    }
+    .tab-panel.active {
+      display: block;
+    }
+
+    .card {
+      background: var(--bg-card-light);
+      border-radius: var(--radius-lg);
+      padding: 16px 14px 18px;
+      box-shadow: 0 14px 35px rgba(148, 163, 184, 0.25);
+      margin-bottom: 16px;
+    }
+
+    body.dark .card {
+      background: var(--bg-card-dark);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--border-dark);
+    }
+
+    .card h2 {
+      margin: 0 0 6px;
+      font-size: 17px;
+    }
+
+    .card .sub {
+      font-size: 12px;
+      color: var(--text-sub-light);
+      margin-bottom: 10px;
+    }
+    body.dark .card .sub {
+      color: var(--text-sub-dark);
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      margin: 10px 0 4px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 11px;
+      border-radius: 10px;
+      border: 1px solid var(--border-light);
+      background: #f9fafb;
+      font-size: 14px;
+    }
+
+    body.dark input,
+    body.dark select {
+      border-color: var(--border-dark);
+      background: #020617;
+      color: var(--text-main-dark);
+    }
+
+    input::placeholder {
+      color: #c4c4d0;
+    }
+    body.dark input::placeholder {
+      color: #6b7280;
+    }
+
+    .inline-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .inline-row > div {
+      flex: 1 1 120px;
+    }
+
+    .btn-row {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn-primary,
+    .btn-outline,
+    .btn-danger {
+      border-radius: 999px;
+      border: none;
+      padding: 10px 18px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 10px 26px rgba(79, 125, 255, 0.5);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 32px rgba(79, 125, 255, 0.7);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid rgba(79, 125, 255, 0.35);
+      background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(79, 125, 255, 0.08));
+    }
+    body.dark .btn-outline {
+      color: #e5edff;
+      border-color: rgba(148, 163, 255, 0.65);
+    }
+    .btn-outline:hover {
+      background: rgba(79, 125, 255, 0.12);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+      box-shadow: 0 10px 26px rgba(248, 113, 113, 0.4);
+    }
+    .btn-danger:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 32px rgba(248, 113, 113, 0.7);
+    }
+
+    .helper {
+      font-size: 12px;
+      color: var(--text-sub-light);
+      margin-top: 4px;
+    }
+    body.dark .helper {
+      color: var(--text-sub-dark);
+    }
+
+    /* 테이블 */
+    .table-wrapper {
+      margin-top: 10px;
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      border: 1px solid var(--border-light);
+      background: white;
+    }
+    body.dark .table-wrapper {
+      border-color: var(--border-dark);
+      background: #020617;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 520px;
+      font-size: 12px;
+    }
+    th, td {
+      padding: 7px 8px;
+      text-align: left;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+      white-space: nowrap;
+    }
+    th {
+      background: #eef2ff;
+      font-weight: 600;
+    }
+    body.dark th {
+      background: #020617;
+      color: #e5e7ff;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+    body.dark .pill {
+      background: rgba(30, 64, 175, 0.7);
+      color: #e5edff;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.2);
+    }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    /* 일별 조회 날짜 바 */
+    .date-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .date-display {
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(79, 125, 255, 0.08);
+      font-size: 13px;
+    }
+    body.dark .date-display {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .date-btn {
+      border-radius: 999px;
+      border: none;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(148, 163, 184, 0.25);
+      cursor: pointer;
+    }
+    body.dark .date-btn {
+      background: rgba(30, 64, 175, 0.8);
+      color: #e5edff;
+    }
+
+    /* 토글 스위치 느낌 */
+    .pill-toggle {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      font-size: 12px;
+      gap: 6px;
+    }
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--primary);
+    }
+
+    body.dark .pill-toggle {
+      border-color: rgba(148, 163, 255, 0.7);
+    }
+
+    .mt-4 { margin-top: 14px; }
+    .mt-2 { margin-top: 8px; }
+
+    .align-right {
+      text-align: right;
+    }
   </style>
 </head>
 <body>
-  <!-- 잠금 화면 -->
-  <div id="lock-screen">
-    <div class="panel">
-      <h2>잠금 해제</h2>
-      <p>설정한 비밀번호를 입력하면 Tape Flow 를 사용할 수 있어요.</p>
-      <div class="field">
-        <input id="lock-pin" type="password" inputmode="numeric" maxlength="10" placeholder="비밀번호" />
-      </div>
-      <button class="btn" id="lock-open-btn">앱 열기</button>
-      <div id="lock-error"></div>
+<div class="app">
+  <header class="app-header">
+    <div class="logo-box"><span>📦</span></div>
+    <div class="title-wrap">
+      <h1>TAPE FLOW</h1>
+      <p>테이프 · 제품 재고 &amp; 작업 기록 관리</p>
     </div>
-  </div>
+  </header>
 
-  <div class="app">
-    <header>
-      <div class="logo-box"><span>📦</span></div>
-      <div>
-        <h1>TAPE FLOW</h1>
-        <p>테이프·제품 재고 & 작업 기록 관리</p>
+  <nav class="tab-bar">
+    <button class="tab-btn active" data-tab="products">제품 재고</button>
+    <button class="tab-btn" data-tab="work">작업 등록</button>
+    <button class="tab-btn" data-tab="tape-stock">테이프 재고</button>
+    <button class="tab-btn" data-tab="daily">일별 조회</button>
+    <button class="tab-btn" data-tab="tape-settings">테이프 설정</button>
+    <button class="tab-btn" data-tab="settings">설정</button>
+  </nav>
+
+  <!-- 제품 재고 -->
+  <section id="tab-products" class="tab-panel active">
+    <div class="card">
+      <h2>제품 재고 등록</h2>
+      <p class="sub">인쇄실에서 내려온 작업 전 제품 재고를 등록해요. 같은 제품이라도 세트별로 따로 입력하면 돼요.</p>
+
+      <label>제품명</label>
+      <input id="product-name" placeholder="예: 7125J" />
+
+      <label>수량(EA)</label>
+      <input id="product-ea" type="number" placeholder="예: 2520" />
+
+      <label>발신 LOT</label>
+      <input id="product-lot" placeholder="예: LOT123" />
+
+      <label>인쇄자</label>
+      <input id="product-printer" placeholder="예: 김주현" />
+
+      <div class="btn-row">
+        <button class="btn-primary" id="add-product-stock">재고 추가</button>
       </div>
-    </header>
 
-    <!-- 네비게이션 -->
-    <div class="nav">
-      <button class="active" data-tab="prod">제품 재고</button>
-      <button data-tab="job">작업 등록</button>
-      <button data-tab="tape-stock">테이프 재고</button>
-      <button data-tab="tape">테이프 설정</button>
-      <button data-tab="settings">설정</button>
+      <div class="helper">
+        · 같은 제품이 여러 세트면 세트마다 따로 입력해 주세요.<br/>
+        · 작업 등록 시 여기 재고에서 차감되고 0이 되면 자동으로 사라져요.
+      </div>
+
+      <div class="table-wrapper mt-4" id="product-stock-table-wrapper">
+        <table>
+          <thead>
+          <tr>
+            <th>날짜</th>
+            <th>제품명</th>
+            <th>EA</th>
+            <th>발신 LOT</th>
+            <th>인쇄자</th>
+          </tr>
+          </thead>
+          <tbody id="product-stock-tbody">
+          </tbody>
+        </table>
+      </div>
+
+      <div class="btn-row mt-2">
+        <button class="btn-outline" id="download-product-csv">제품 재고 CSV 다운로드</button>
+      </div>
     </div>
+  </section>
 
-    <!-- 제품 재고 탭 -->
-    <section id="tab-prod" class="tab-pane active">
-      <div class="card">
-        <h2>제품 재고 등록</h2>
-        <div class="sub">인쇄실에서 올라온 제품을 세트별로 입력해 두는 곳이에요.</div>
-        <div class="field">
-          <label for="prod-name">제품명</label>
-          <input id="prod-name" placeholder="예: 7125J" />
-        </div>
-        <div class="field">
-          <label for="prod-ea">수량(EA)</label>
-          <input id="prod-ea" type="number" inputmode="numeric" placeholder="예: 2520" />
-        </div>
-        <div class="field">
-          <label for="prod-lot">발신 LOT</label>
-          <input id="prod-lot" placeholder="예: LOT123" />
-        </div>
-        <div class="field">
-          <label for="prod-printer">인쇄자</label>
-          <input id="prod-printer" placeholder="예: 김주현" />
-        </div>
-        <button class="btn" id="btn-prod-add">재고 추가</button>
-        <div class="note">같은 제품이 여러 세트일 땐 세트마다 따로 등록해 주세요.</div>
-      </div>
+  <!-- 작업 등록 -->
+  <section id="tab-work" class="tab-panel">
+    <div class="card">
+      <h2>작업 등록</h2>
+      <p class="sub">어떤 제품에 어떤 테이프를 몇 장 사용했는지 기록해요. EA와 장수 중 하나만 입력해도 자동 계산돼요.</p>
 
-      <div class="card">
-        <div class="flex-between">
-          <h2>제품 재고 목록</h2>
-          <button class="btn-secondary btn-sm" id="btn-prod-csv">제품 재고 CSV 다운로드</button>
+      <div class="inline-row">
+        <div>
+          <label>작업 날짜</label>
+          <input id="work-date" type="date" />
         </div>
-        <div id="prod-list-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>날짜</th>
-                <th>제품명</th>
-                <th>EA</th>
-                <th>발신 LOT</th>
-                <th>인쇄자</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-            <tbody id="prod-table-body"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- 작업 등록 탭 -->
-    <section id="tab-job" class="tab-pane">
-      <div class="card">
-        <h2>작업 등록</h2>
-        <div class="sub">어떤 제품을 어떤 테이프로 몇 EA/장 작업했는지 기록해요. 등록 시 해당 제품 재고가 자동으로 차감돼요.</div>
-
-        <div class="field">
-          <label for="job-date">작업 날짜</label>
-          <input id="job-date" type="date" />
-        </div>
-
-        <div class="field">
-          <label for="job-prod-name">제품명</label>
-          <input id="job-prod-name" placeholder="예: 7125J" />
-          <div id="job-prod-suggestions" class="suggestions"></div>
-        </div>
-
-        <div class="field">
-          <label for="job-lot">발신 LOT</label>
-          <input id="job-lot" placeholder="예: LOT123" />
-          <div id="job-lot-suggestions" class="suggestions"></div>
-        </div>
-
-        <div class="flex-row">
-          <div class="field">
-            <label for="job-ea">사용 수량(EA)</label>
-            <input id="job-ea" type="number" inputmode="numeric" placeholder="예: 2520" />
-          </div>
-          <div class="field">
-            <label for="job-sheets">사용 장수(테이프)</label>
-            <input id="job-sheets" type="number" inputmode="numeric" placeholder="예: 420" />
-          </div>
-        </div>
-        <div class="note">EA 또는 장수 중 하나만 입력해도, 테이프 정보가 있으면 나머지는 자동 계산돼요(수정도 가능).</div>
-
-        <div class="field">
-          <label for="job-tape">사용 테이프</label>
-          <select id="job-tape">
-            <option value="">테이프 선택</option>
-          </select>
-        </div>
-
-        <div class="flex-row">
-          <div class="field">
-            <label for="job-defect">테이프 불량 장수</label>
-            <input id="job-defect" type="number" inputmode="numeric" placeholder="예: 3" />
-          </div>
-          <div class="field">
-            <label for="job-dest">작업 내린 곳</label>
-            <select id="job-dest">
-              <option value="가공실">가공실</option>
-              <option value="태성">태성</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>
-            <input type="checkbox" id="job-deduct" checked />
-            이 작업만큼 제품 재고에서 차감
-          </label>
-        </div>
-
-        <button class="btn" id="btn-job-add">작업 추가</button>
-      </div>
-
-      <div class="card">
-        <div class="flex-between">
-          <h2>최근 작업 내역</h2>
-          <span class="badge"><span>ℹ️</span>최신 30건만 표시</span>
-        </div>
-        <div id="job-list-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>날짜</th>
-                <th>제품명</th>
-                <th>LOT</th>
-                <th>EA</th>
-                <th>장수</th>
-                <th>테이프</th>
-                <th>불량</th>
-                <th>목적지</th>
-              </tr>
-            </thead>
-            <tbody id="job-table-body"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- 테이프 재고 탭 -->
-    <section id="tab-tape-stock" class="tab-pane">
-      <div class="card">
-        <h2>테이프 입고 등록</h2>
-        <div class="sub">가공실·태성에서 올라온 테이프 장수를 등록해요.</div>
-        <div class="field">
-          <label for="tape-event-date">입고 날짜</label>
-          <input id="tape-event-date" type="date" />
-        </div>
-        <div class="field">
-          <label for="tape-event-tape">테이프</label>
-          <select id="tape-event-tape">
-            <option value="">테이프 선택</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="tape-event-sheets">입고 장수</label>
-          <input id="tape-event-sheets" type="number" inputmode="numeric" placeholder="예: 300" />
-        </div>
-        <button class="btn" id="btn-tape-in">입고 추가</button>
-        <div class="note">테이프 잔량은 입고·불량·작업 사용량을 모두 반영해서 자동 계산돼요.</div>
-      </div>
-
-      <div class="card">
-        <div class="flex-between">
-          <h2>테이프 재고 현황</h2>
-          <button class="btn-secondary btn-sm" id="btn-tape-stock-csv">테이프 재고 CSV</button>
-        </div>
-        <div id="tape-stock-table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>테이프명</th>
-                <th>출처</th>
-                <th>입고 장수</th>
-                <th>사용 장수</th>
-                <th>불량 장수</th>
-                <th>현재 장수</th>
-                <th>잔량 수정</th>
-              </tr>
-            </thead>
-            <tbody id="tape-stock-body"></tbody>
-          </table>
-        </div>
-        <div class="note">잔량 수정은 계산값과 다를 때 수기로 맞추는 용도예요(조정 내역은 별도로 저장).</div>
-      </div>
-    </section>
-
-    <!-- 테이프 설정 탭 -->
-    <section id="tab-tape" class="tab-pane">
-      <div class="card">
-        <h2>테이프 기본 정보</h2>
-        <div class="sub">테이프 종류와 1장당 몇 EA 붙는지 설정해요. 작업 등록 때 자동 계산에 사용돼요.</div>
-
-        <div class="field">
-          <label for="tape-name">테이프명</label>
-          <input id="tape-name" placeholder="예: 6855, 6491" />
-        </div>
-        <div class="field">
-          <label for="tape-ea">EA(제품 수량) / 1장당</label>
-          <input id="tape-ea" type="number" inputmode="numeric" placeholder="예: 6" />
-        </div>
-        <div class="field">
-          <label for="tape-source">출처</label>
-          <select id="tape-source">
+        <div>
+          <label>작업 방향</label>
+          <select id="work-destination">
             <option value="가공실">가공실</option>
             <option value="태성">태성</option>
+            <option value="기타">기타</option>
           </select>
         </div>
-        <button class="btn" id="btn-tape-add">테이프 추가</button>
       </div>
 
-      <div class="card">
-        <h2>등록된 테이프</h2>
-        <div id="tape-list-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>테이프명</th>
-                <th>EA / 장</th>
-                <th>출처</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-            <tbody id="tape-table-body"></tbody>
-          </table>
+      <label>제품명 (자동완성)</label>
+      <input id="work-product-name" list="product-name-list" placeholder="예: 7125J" />
+      <datalist id="product-name-list"></datalist>
+
+      <label>발신 LOT (자동완성)</label>
+      <input id="work-lot" list="lot-list" placeholder="예: LOT123" />
+      <datalist id="lot-list"></datalist>
+
+      <label>테이프 선택</label>
+      <select id="work-tape">
+        <option value="">테이프 선택</option>
+      </select>
+
+      <div class="inline-row">
+        <div>
+          <label>EA 사용량</label>
+          <input id="work-ea" type="number" placeholder="예: 2520" />
+        </div>
+        <div>
+          <label>테이프 사용 장수</label>
+          <input id="work-sheets" type="number" placeholder="예: 315" />
         </div>
       </div>
-    </section>
 
-    <!-- 설정 탭 -->
-    <section id="tab-settings" class="tab-pane">
-      <div class="card">
-        <h2>테마 · 화면 설정</h2>
-        <div class="sub">라이트 / 다크 테마를 바꿀 수 있어요.</div>
-        <button class="btn-secondary" id="btn-theme-toggle">다크 모드 전환</button>
-        <div class="note" id="theme-note"></div>
+      <label>테이프 불량 장수</label>
+      <input id="work-defect" type="number" placeholder="예: 2" />
+
+      <div class="helper">
+        · EA 또는 장수 중 하나만 입력하면, 테이프 설정의 EA/장 값으로 계산해서 나머지 한쪽이 자동으로 채워져요.<br/>
+        · 테이프 불량은 그냥 버린 장수만 적으면 돼요.
       </div>
 
-      <div class="card">
-        <h2>비밀번호 설정</h2>
-        <div class="sub">다른 사람이 마음대로 수정하지 못하게 간단한 비밀번호를 걸 수 있어요.</div>
-        <div class="field">
-          <label for="setting-old-pin">현재 비밀번호 (있을 경우)</label>
-          <input id="setting-old-pin" type="password" />
-        </div>
-        <div class="field">
-          <label for="setting-new-pin">새 비밀번호 (숫자 몇 자리든 가능)</label>
-          <input id="setting-new-pin" type="password" />
-        </div>
-        <button class="btn" id="btn-pin-save">비밀번호 설정 / 변경</button>
-        <button class="btn-secondary btn-sm" id="btn-pin-clear" style="margin-left:8px;">비밀번호 해제</button>
-        <div class="note" id="pin-note"></div>
+      <div class="btn-row">
+        <button class="btn-primary" id="add-work">작업 등록</button>
       </div>
-    </section>
-  </div>
 
-  <script>
-    // ---------- 공통 유틸 ----------
-    const LS_TAPES = 'TF_TAPES';
-    const LS_PRODUCTS = 'TF_PRODUCTS';
-    const LS_JOBS = 'TF_JOBS';
-    const LS_TAPE_EVENTS = 'TF_TAPE_EVENTS';
-    const LS_THEME = 'TF_THEME';
-    const LS_PIN = 'TF_PIN';
+      <div class="table-wrapper mt-4">
+        <table>
+          <thead>
+          <tr>
+            <th>날짜</th>
+            <th>제품명</th>
+            <th>LOT</th>
+            <th>테이프</th>
+            <th>EA</th>
+            <th>사용 장수</th>
+            <th>불량 장수</th>
+            <th>작업처</th>
+          </tr>
+          </thead>
+          <tbody id="work-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
 
-    let tapes = [];
-    let products = [];
-    let jobs = [];
-    let tapeEvents = []; // {id,date,tapeId,type:'in'|'adjust',delta}
+  <!-- 테이프 재고 -->
+  <section id="tab-tape-stock" class="tab-panel">
+    <div class="card">
+      <h2>테이프 입고 &amp; 재고</h2>
+      <p class="sub">가공실·태성에서 올라온 테이프 장수를 등록하고, 전체 재고를 확인할 수 있어요.</p>
 
-    function loadAll(){
-      tapes = JSON.parse(localStorage.getItem(LS_TAPES) || '[]');
-      products = JSON.parse(localStorage.getItem(LS_PRODUCTS) || '[]');
-      jobs = JSON.parse(localStorage.getItem(LS_JOBS) || '[]');
-      tapeEvents = JSON.parse(localStorage.getItem(LS_TAPE_EVENTS) || '[]');
+      <div class="inline-row">
+        <div>
+          <label>입고 날짜</label>
+          <input id="tape-in-date" type="date" />
+        </div>
+        <div>
+          <label>입고 출처</label>
+          <select id="tape-in-source">
+            <option value="가공실">가공실</option>
+            <option value="태성">태성</option>
+            <option value="기타">기타</option>
+          </select>
+        </div>
+      </div>
+
+      <label>테이프</label>
+      <select id="tape-in-name">
+        <option value="">테이프 선택</option>
+      </select>
+
+      <label>입고 장수</label>
+      <input id="tape-in-qty" type="number" placeholder="예: 300" />
+
+      <div class="btn-row">
+        <button class="btn-primary" id="add-tape-in">입고 추가</button>
+      </div>
+
+      <p class="helper">
+        테이프 잔량은 입고·불량·작업 사용량, 수기 조정값을 모두 반영해서 자동 계산돼요.
+      </p>
+
+      <div class="mt-4 section-label">테이프 재고 현황</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+          <tr>
+            <th>테이프명</th>
+            <th>EA/장</th>
+            <th>입고 장수</th>
+            <th>사용 장수</th>
+            <th>불량 장수</th>
+            <th>조정</th>
+            <th>현재 장수</th>
+          </tr>
+          </thead>
+          <tbody id="tape-stock-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="helper mt-2">
+        * 조정은 계산값과 실제 잔량이 다를 때 맞춰 넣는 용도예요. 조정 내역은 별도로 저장돼요.
+      </div>
+
+      <div class="btn-row mt-2">
+        <button class="btn-outline" id="download-tape-csv">테이프 재고 CSV</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 일별 조회 -->
+  <section id="tab-daily" class="tab-panel">
+    <div class="card">
+      <h2>일별 재고 &amp; 작업 내역</h2>
+      <p class="sub">원하는 날짜 기준으로 테이프 재고와 그날 작업 내역을 한 번에 확인할 수 있어요.</p>
+
+      <div class="date-nav">
+        <button class="date-btn" id="daily-prev">&lt;</button>
+        <div class="date-display" id="daily-date-label"></div>
+        <button class="date-btn" id="daily-next">&gt;</button>
+      </div>
+
+      <div class="section-label">해당 날짜 기준 테이프 재고</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+          <tr>
+            <th>테이프명</th>
+            <th>입고 장수(누적)</th>
+            <th>사용 장수(누적)</th>
+            <th>불량 장수(누적)</th>
+            <th>조정(누적)</th>
+            <th>잔량</th>
+          </tr>
+          </thead>
+          <tbody id="daily-tape-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="section-label mt-4">해당 날짜 작업 내역</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+          <tr>
+            <th>시간순</th>
+            <th>제품명</th>
+            <th>LOT</th>
+            <th>테이프</th>
+            <th>EA</th>
+            <th>사용 장수</th>
+            <th>불량</th>
+            <th>작업처</th>
+          </tr>
+          </thead>
+          <tbody id="daily-work-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 테이프 설정 -->
+  <section id="tab-tape-settings" class="tab-panel">
+    <div class="card">
+      <h2>테이프 기본 정보</h2>
+      <p class="sub">테이프 종류별로 EA/장 값을 등록해 두면 작업 등록 시 자동 계산에 사용돼요.</p>
+
+      <label>테이프명</label>
+      <input id="tape-name" placeholder="예: 6855, 6491" />
+
+      <label>EA(제품 수량) / 1장당</label>
+      <input id="tape-ea-per-sheet" type="number" placeholder="예: 6" />
+
+      <label>기본 출처</label>
+      <select id="tape-source">
+        <option value="가공실">가공실</option>
+        <option value="태성">태성</option>
+        <option value="공통">공통</option>
+        <option value="기타">기타</option>
+      </select>
+
+      <div class="btn-row">
+        <button class="btn-primary" id="add-tape">테이프 추가</button>
+      </div>
+
+      <div class="table-wrapper mt-4">
+        <table>
+          <thead>
+          <tr>
+            <th>테이프명</th>
+            <th>EA/장</th>
+            <th>출처</th>
+          </tr>
+          </thead>
+          <tbody id="tape-settings-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 설정 -->
+  <section id="tab-settings" class="tab-panel">
+    <div class="card">
+      <h2>테마 · 화면 설정</h2>
+      <p class="sub">라이트 / 다크 테마를 변경할 수 있어요.</p>
+
+      <div class="inline-row">
+        <div>
+          <div class="pill-toggle">
+            <div class="pill-dot"></div>
+            <span id="theme-status-text">현재: 라이트 모드</span>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-outline" id="toggle-theme">라이트 / 다크 전환</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>비밀번호 설정</h2>
+      <p class="sub">다른 사람이 함부로 수정 못 하게 간단한 비밀번호를 걸 수 있어요. (기기 한 대 기준)</p>
+
+      <label>현재 비밀번호 (있을 경우)</label>
+      <input id="current-pin" type="password" placeholder="없으면 비워두기" />
+
+      <label>새 비밀번호 (숫자 몇 자리든 가능)</label>
+      <input id="new-pin" type="password" placeholder="예: 1234" />
+
+      <div class="btn-row">
+        <button class="btn-primary" id="set-pin">비밀번호 설정 / 변경</button>
+        <button class="btn-outline" id="clear-pin">비밀번호 해제</button>
+      </div>
+
+      <p class="helper">
+        · 비밀번호는 이 기기에만 저장돼요. 비밀번호를 잊으면 데이터는 남아있지만 잠금을 해제하기 어려울 수 있으니 조심해 주세요.
+      </p>
+    </div>
+  </section>
+</div>
+
+<script>
+  // ======== 상태 & 저장 =========
+  const STORAGE_KEY = 'tape_flow_v3';
+
+  let state = {
+    tapes: [],            // {name, eaPerSheet, source}
+    tapeInRecords: [],    // {id, date, tapeName, qty, source}
+    tapeAdjustments: [],  // {id, date, tapeName, delta}
+    productStocks: [],    // {id, date, productName, ea, lot, printer}
+    workRecords: [],      // {id, date, productName, lot, tapeName, eaUsed, sheetsUsed, defectSheets, destination}
+    settings: {
+      theme: 'light',
+      pin: ''
     }
-    function saveAll(){
-      localStorage.setItem(LS_TAPES, JSON.stringify(tapes));
-      localStorage.setItem(LS_PRODUCTS, JSON.stringify(products));
-      localStorage.setItem(LS_JOBS, JSON.stringify(jobs));
-      localStorage.setItem(LS_TAPE_EVENTS, JSON.stringify(tapeEvents));
-    }
+  };
 
-    function todayStr(){
-      const d = new Date();
-      const m = String(d.getMonth()+1).padStart(2,'0');
-      const day = String(d.getDate()).padStart(2,'0');
-      return d.getFullYear() + '-' + m + '-' + day;
-    }
-
-    function downloadCSV(filename, header, rows){
-      const sep = ',';
-      const escape = (v) => {
-        if(v == null) return '';
-        const s = String(v).replace(/"/g,'""');
-        return '"' + s + '"';
-      };
-      let csv = header.map(escape).join(sep) + '\n';
-      rows.forEach(r=>{
-        csv += r.map(escape).join(sep) + '\n';
-      });
-      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    // ---------- 탭 전환 ----------
-    function setupTabs(){
-      const buttons = document.querySelectorAll('.nav button');
-      const panes = document.querySelectorAll('.tab-pane');
-      buttons.forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          const target = btn.dataset.tab;
-          buttons.forEach(b=>b.classList.remove('active'));
-          panes.forEach(p=>p.classList.remove('active'));
-          btn.classList.add('active');
-          document.getElementById('tab-'+target).classList.add('active');
-        });
-      });
-    }
-
-    // ---------- 제품 재고 ----------
-    function renderProducts(){
-      const tbody = document.getElementById('prod-table-body');
-      tbody.innerHTML = '';
-      // 최신이 위로
-      const sorted = [...products].sort((a,b)=>b.id - a.id);
-      sorted.forEach(p=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${p.date}</td>
-          <td>${p.name}</td>
-          <td>${p.ea}</td>
-          <td>${p.lot || ''}</td>
-          <td>${p.printer || ''}</td>
-          <td>
-            <button class="btn-secondary btn-sm" data-id="${p.id}" data-action="del-prod">삭제</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-      tbody.querySelectorAll('button[data-action="del-prod"]').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          const id = Number(btn.dataset.id);
-          if(!confirm('이 제품 재고를 삭제할까요?')) return;
-          products = products.filter(p=>p.id !== id);
-          saveAll();
-          renderProducts();
-        });
-      });
-    }
-
-    function setupProductForm(){
-      document.getElementById('btn-prod-add').addEventListener('click', ()=>{
-        const name = document.getElementById('prod-name').value.trim();
-        const ea = Number(document.getElementById('prod-ea').value || 0);
-        const lot = document.getElementById('prod-lot').value.trim();
-        const printer = document.getElementById('prod-printer').value.trim();
-        if(!name || !ea){
-          alert('제품명과 수량(EA)은 필수입니다.');
-          return;
-        }
-        const item = {
-          id: Date.now(),
-          date: todayStr(),
-          name, ea, lot, printer
-        };
-        products.push(item);
-        saveAll();
-        document.getElementById('prod-name').value = '';
-        document.getElementById('prod-ea').value = '';
-        document.getElementById('prod-lot').value = '';
-        document.getElementById('prod-printer').value = '';
-        renderProducts();
-      });
-
-      document.getElementById('btn-prod-csv').addEventListener('click', ()=>{
-        const header = ['날짜','제품명','EA','발신LOT','인쇄자'];
-        const rows = products.map(p=>[p.date,p.name,p.ea,p.lot||'',p.printer||'']);
-        downloadCSV('제품재고_'+todayStr()+'.csv', header, rows);
-      });
-    }
-
-    // 제품 재고 차감
-    function deductProductStock(name, lot, usedEa){
-      if(!usedEa) return;
-      let remain = usedEa;
-      // LOT 우선
-      const candidates = products.filter(p=>p.name === name && (!lot || p.lot === lot));
-      for(const p of candidates){
-        if(remain <= 0) break;
-        if(p.ea > remain){
-          p.ea -= remain;
-          remain = 0;
-        }else{
-          remain -= p.ea;
-          products = products.filter(x=>x.id !== p.id);
-        }
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        state = Object.assign(state, parsed);
       }
-      saveAll();
-      renderProducts();
+    } catch (e) {
+      console.error('loadState error', e);
     }
+  }
 
-    // ---------- 작업 등록 ----------
-    function renderJobs(){
-      const tbody = document.getElementById('job-table-body');
-      tbody.innerHTML = '';
-      const sorted = [...jobs].sort((a,b)=>b.id-a.id).slice(0,30);
-      sorted.forEach(j=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${j.date}</td>
-          <td>${j.productName}</td>
-          <td>${j.lot || ''}</td>
-          <td>${j.usedEa || ''}</td>
-          <td>${j.sheets || ''}</td>
-          <td>${j.tapeName || ''}</td>
-          <td>${j.defectSheets || 0}</td>
-          <td>${j.dest || ''}</td>
-        `;
-        tbody.appendChild(tr);
-      });
+  function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
+  }
+
+  loadState();
+
+  // ======== 공통 유틸 =========
+  function todayStr() {
+    const d = new Date();
+    return d.toISOString().slice(0, 10);
+  }
+
+  function formatDateLabel(iso) {
+    const [y, m, d] = iso.split('-');
+    return `${y}년 ${m}월 ${d}일`;
+  }
+
+  function withinDate(dateStr, cutoffStr) {
+    if (!cutoffStr) return true;
+    return dateStr <= cutoffStr;
+  }
+
+  // ======== 테마 적용 =========
+  const themeStatusText = document.getElementById('theme-status-text');
+  function applyTheme() {
+    if (state.settings.theme === 'dark') {
+      document.body.classList.add('dark');
+      themeStatusText.textContent = '현재: 다크 모드';
+    } else {
+      document.body.classList.remove('dark');
+      themeStatusText.textContent = '현재: 라이트 모드';
     }
+  }
+  applyTheme();
 
-    function setupJobForm(){
-      const dateInput = document.getElementById('job-date');
-      dateInput.value = todayStr();
+  document.getElementById('toggle-theme').addEventListener('click', () => {
+    state.settings.theme = state.settings.theme === 'dark' ? 'light' : 'dark';
+    saveState();
+    applyTheme();
+  });
 
-      const prodInput = document.getElementById('job-prod-name');
-      const lotInput = document.getElementById('job-lot');
-      const prodSugWrap = document.getElementById('job-prod-suggestions');
-      const lotSugWrap = document.getElementById('job-lot-suggestions');
-
-      function rebuildProdSuggestions(){
-        const q = prodInput.value.trim();
-        prodSugWrap.innerHTML = '';
-        if(!q) return;
-        const names = Array.from(new Set(products.map(p=>p.name))).filter(n=>n && n.includes(q));
-        names.slice(0,8).forEach(n=>{
-          const b = document.createElement('button');
-          b.type = 'button';
-          b.textContent = n;
-          b.addEventListener('click', ()=>{
-            prodInput.value = n;
-            prodSugWrap.innerHTML = '';
-            rebuildLotSuggestions();
-          });
-          prodSugWrap.appendChild(b);
-        });
-      }
-      function rebuildLotSuggestions(){
-        const q = lotInput.value.trim();
-        lotSugWrap.innerHTML = '';
-        const name = prodInput.value.trim();
-        if(!name) return;
-        const lots = Array.from(new Set(products.filter(p=>p.name===name).map(p=>p.lot))).filter(l=>l && (!q || l.includes(q)));
-        lots.slice(0,8).forEach(l=>{
-          const b = document.createElement('button');
-          b.type = 'button';
-          b.textContent = l;
-          b.addEventListener('click', ()=>{
-            lotInput.value = l;
-            lotSugWrap.innerHTML = '';
-          });
-          lotSugWrap.appendChild(b);
-        });
-      }
-      prodInput.addEventListener('input', rebuildProdSuggestions);
-      lotInput.addEventListener('input', rebuildLotSuggestions);
-
-      const eaInput = document.getElementById('job-ea');
-      const sheetInput = document.getElementById('job-sheets');
-      const tapeSelect = document.getElementById('job-tape');
-
-      function getSelectedTape(){
-        const id = tapeSelect.value;
-        if(!id) return null;
-        return tapes.find(t=>String(t.id)===id) || null;
-      }
-
-      eaInput.addEventListener('change', ()=>{
-        const t = getSelectedTape();
-        if(!t || !t.eaPerSheet) return;
-        if(!eaInput.value) return;
-        if(sheetInput.value) return; // 이미 직접 입력된 경우
-        const ea = Number(eaInput.value || 0);
-        if(ea<=0) return;
-        sheetInput.value = Math.ceil(ea / t.eaPerSheet);
-      });
-      sheetInput.addEventListener('change', ()=>{
-        const t = getSelectedTape();
-        if(!t || !t.eaPerSheet) return;
-        if(!sheetInput.value) return;
-        if(eaInput.value) return;
-        const sheets = Number(sheetInput.value || 0);
-        if(sheets<=0) return;
-        eaInput.value = sheets * t.eaPerSheet;
-      });
-
-      document.getElementById('btn-job-add').addEventListener('click', ()=>{
-        const date = dateInput.value || todayStr();
-        const productName = prodInput.value.trim();
-        const lot = lotInput.value.trim();
-        const usedEa = Number(eaInput.value || 0);
-        const sheets = Number(sheetInput.value || 0);
-        const tapeId = tapeSelect.value;
-        const tape = tapes.find(t=>String(t.id)===tapeId);
-        const tapeName = tape ? tape.name : '';
-        const defectSheets = Number(document.getElementById('job-defect').value || 0);
-        const dest = document.getElementById('job-dest').value;
-        const deduct = document.getElementById('job-deduct').checked;
-
-        if(!productName){
-          alert('제품명을 입력해 주세요.');
-          return;
-        }
-        if(!usedEa && !sheets){
-          alert('EA 또는 테이프 장수 중 하나는 입력해야 합니다.');
-          return;
-        }
-        if(!tapeId){
-          if(!confirm('테이프가 선택되지 않았습니다. 테이프 없이 작업을 등록할까요?')) return;
-        }
-
-        // EA/장수 보정
-        if(tape && tape.eaPerSheet){
-          if(usedEa && !sheets){
-            sheetInput.value = Math.ceil(usedEa / tape.eaPerSheet);
-          }else if(!usedEa && sheets){
-            eaInput.value = sheets * tape.eaPerSheet;
-          }
-        }
-
-        const finalEa = Number(eaInput.value || usedEa || 0);
-        const finalSheets = Number(sheetInput.value || sheets || 0);
-
-        const job = {
-          id: Date.now(),
-          date, productName, lot,
-          usedEa: finalEa,
-          sheets: finalSheets,
-          tapeId: tapeId || null,
-          tapeName,
-          defectSheets,
-          dest
-        };
-        jobs.push(job);
-
-        // 제품 재고 차감
-        if(deduct && finalEa){
-          deductProductStock(productName, lot, finalEa);
-        }
-
-        saveAll();
-        renderJobs();
-        renderTapeStock();
-
-        // 입력값 일부 초기화
-        eaInput.value = '';
-        sheetInput.value = '';
-        document.getElementById('job-defect').value = '';
-      });
-    }
-
-    // ---------- 테이프 설정 ----------
-    function renderTapeOptions(){
-      const selects = [document.getElementById('job-tape'), document.getElementById('tape-event-tape')];
-      selects.forEach(sel=>{
-        const current = sel.value;
-        sel.innerHTML = '<option value="">테이프 선택</option>';
-        tapes.forEach(t=>{
-          const opt = document.createElement('option');
-          opt.value = t.id;
-          opt.textContent = t.name;
-          sel.appendChild(opt);
-        });
-        if(current) sel.value = current;
-      });
-    }
-
-    function renderTapes(){
-      const tbody = document.getElementById('tape-table-body');
-      tbody.innerHTML = '';
-      tapes.forEach(t=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${t.name}</td>
-          <td>${t.eaPerSheet || ''}</td>
-          <td>${t.source || ''}</td>
-          <td>
-            <button class="btn-secondary btn-sm" data-id="${t.id}" data-action="edit-tape">수정</button>
-            <button class="btn-danger btn-sm" data-id="${t.id}" data-action="del-tape">삭제</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      tbody.querySelectorAll('button[data-action="del-tape"]').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          const id = Number(btn.dataset.id);
-          if(!confirm('이 테이프를 삭제할까요? (기록은 남아있지만 새 작업에서 선택할 수 없음)')) return;
-          tapes = tapes.filter(t=>t.id !== id);
-          saveAll();
-          renderTapes();
-          renderTapeOptions();
-          renderTapeStock();
-        });
-      });
-
-      tbody.querySelectorAll('button[data-action="edit-tape"]').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          const id = Number(btn.dataset.id);
-          const t = tapes.find(x=>x.id === id);
-          if(!t) return;
-          const name = prompt('테이프명 수정', t.name);
-          if(!name) return;
-          const ea = Number(prompt('EA / 장', t.eaPerSheet || '') || 0);
-          const source = prompt('출처 (가공실 / 태성)', t.source || '') || t.source;
-          t.name = name.trim();
-          t.eaPerSheet = ea;
-          t.source = source;
-          saveAll();
-          renderTapes();
-          renderTapeOptions();
-          renderTapeStock();
-        });
-      });
-    }
-
-    function setupTapeForm(){
-      document.getElementById('btn-tape-add').addEventListener('click', ()=>{
-        const name = document.getElementById('tape-name').value.trim();
-        const ea = Number(document.getElementById('tape-ea').value || 0);
-        const source = document.getElementById('tape-source').value;
-        if(!name){
-          alert('테이프명을 입력해 주세요.');
-          return;
-        }
-        const t = {
-          id: Date.now(),
-          name,
-          eaPerSheet: ea,
-          source
-        };
-        tapes.push(t);
-        saveAll();
-        document.getElementById('tape-name').value = '';
-        document.getElementById('tape-ea').value = '';
-        renderTapes();
-        renderTapeOptions();
-        renderTapeStock();
-      });
-    }
-
-    // ---------- 테이프 재고 ----------
-    function computeTapeStats(){
-      const result = {};
-      tapes.forEach(t=>{
-        result[t.id] = {
-          tape: t,
-          inSheets: 0,
-          usedSheets: 0,
-          defectSheets: 0,
-          adjustDelta: 0
-        };
-      });
-
-      tapeEvents.forEach(ev=>{
-        const s = result[ev.tapeId];
-        if(!s) return;
-        if(ev.type === 'in'){
-          s.inSheets += ev.delta;
-        }else if(ev.type === 'adjust'){
-          s.adjustDelta += ev.delta;
-        }
-      });
-
-      jobs.forEach(j=>{
-        if(!j.tapeId) return;
-        const s = result[j.tapeId];
-        if(!s) return;
-        s.usedSheets += (j.sheets || 0);
-        s.defectSheets += (j.defectSheets || 0);
-      });
-
-      Object.values(result).forEach(s=>{
-        s.currentSheets = s.inSheets + s.adjustDelta - s.usedSheets - s.defectSheets;
-      });
-      return result;
-    }
-
-    function renderTapeStock(){
-      const stats = computeTapeStats();
-      const tbody = document.getElementById('tape-stock-body');
-      tbody.innerHTML = '';
-      Object.values(stats).forEach(s=>{
-        const t = s.tape;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${t.name}</td>
-          <td>${t.source || ''}</td>
-          <td>${s.inSheets}</td>
-          <td>${s.usedSheets}</td>
-          <td>${s.defectSheets}</td>
-          <td>${s.currentSheets}</td>
-          <td>
-            <button class="btn-secondary btn-sm" data-id="${t.id}" data-current="${s.currentSheets}">수정</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      tbody.querySelectorAll('button.btn-secondary').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          const tapeId = Number(btn.dataset.id);
-          const current = Number(btn.dataset.current || 0);
-          const val = prompt('새로운 현재 장수를 입력하세요.', current);
-          if(val === null) return;
-          const newVal = Number(val || 0);
-          const delta = newVal - current;
-          if(!delta) return;
-          tapeEvents.push({
-            id: Date.now(),
-            date: todayStr(),
-            tapeId,
-            type:'adjust',
-            delta
-          });
-          saveAll();
-          renderTapeStock();
-        });
-      });
-    }
-
-    function setupTapeStock(){
-      const dateInput = document.getElementById('tape-event-date');
-      dateInput.value = todayStr();
-
-      document.getElementById('btn-tape-in').addEventListener('click', ()=>{
-        const date = dateInput.value || todayStr();
-        const tapeIdStr = document.getElementById('tape-event-tape').value;
-        const sheets = Number(document.getElementById('tape-event-sheets').value || 0);
-        if(!tapeIdStr){
-          alert('테이프를 선택해 주세요.');
-          return;
-        }
-        if(!sheets){
-          alert('입고 장수를 입력해 주세요.');
-          return;
-        }
-        const tapeId = Number(tapeIdStr);
-        tapeEvents.push({
-          id: Date.now(),
-          date,
-          tapeId,
-          type:'in',
-          delta: sheets
-        });
-        saveAll();
-        document.getElementById('tape-event-sheets').value = '';
-        renderTapeStock();
-      });
-
-      document.getElementById('btn-tape-stock-csv').addEventListener('click', ()=>{
-        const stats = computeTapeStats();
-        const header = ['테이프명','출처','입고장수','사용장수','불량장수','현재장수'];
-        const rows = Object.values(stats).map(s=>[
-          s.tape.name,
-          s.tape.source||'',
-          s.inSheets,
-          s.usedSheets,
-          s.defectSheets,
-          s.currentSheets
-        ]);
-        downloadCSV('테이프재고_'+todayStr()+'.csv', header, rows);
-      });
-    }
-
-    // ---------- 설정 / 테마 / 비밀번호 ----------
-    function applyThemeFromStorage(){
-      const theme = localStorage.getItem(LS_THEME) || 'light';
-      if(theme === 'dark'){
-        document.body.classList.add('theme-dark');
-      }else{
-        document.body.classList.remove('theme-dark');
-      }
-      const btn = document.getElementById('btn-theme-toggle');
-      const note = document.getElementById('theme-note');
-      if(document.body.classList.contains('theme-dark')){
-        btn.textContent = '라이트 모드 전환';
-        note.textContent = '현재: 다크 모드';
-      }else{
-        btn.textContent = '다크 모드 전환';
-        note.textContent = '현재: 라이트 모드';
-      }
-    }
-
-    function setupSettings(){
-      document.getElementById('btn-theme-toggle').addEventListener('click', ()=>{
-        document.body.classList.toggle('theme-dark');
-        const theme = document.body.classList.contains('theme-dark') ? 'dark' : 'light';
-        localStorage.setItem(LS_THEME, theme);
-        applyThemeFromStorage();
-      });
-      applyThemeFromStorage();
-
-      const pinNote = document.getElementById('pin-note');
-      function setPinNote(msg){ pinNote.textContent = msg || ''; }
-
-      document.getElementById('btn-pin-save').addEventListener('click', ()=>{
-        const oldPin = document.getElementById('setting-old-pin').value;
-        const newPin = document.getElementById('setting-new-pin').value;
-        const stored = localStorage.getItem(LS_PIN);
-
-        if(stored){
-          if(oldPin !== stored){
-            setPinNote('현재 비밀번호가 올바르지 않습니다.');
-            return;
-          }
-        }
-        if(!newPin){
-          setPinNote('새 비밀번호를 입력해 주세요.');
-          return;
-        }
-        localStorage.setItem(LS_PIN, newPin);
-        document.getElementById('setting-old-pin').value = '';
-        document.getElementById('setting-new-pin').value = '';
-        setPinNote('비밀번호가 저장되었습니다.');
-      });
-
-      document.getElementById('btn-pin-clear').addEventListener('click', ()=>{
-        if(!confirm('비밀번호를 완전히 해제할까요?')) return;
-        localStorage.removeItem(LS_PIN);
-        document.getElementById('setting-old-pin').value = '';
-        document.getElementById('setting-new-pin').value = '';
-        setPinNote('비밀번호가 해제되었습니다.');
-      });
-    }
-
-    // ---------- 잠금 화면 ----------
-    function setupLockScreen(){
-      const storedPin = localStorage.getItem(LS_PIN);
-      const lock = document.getElementById('lock-screen');
-      const err = document.getElementById('lock-error');
-      if(storedPin){
-        lock.style.display = 'flex';
-      }else{
-        lock.style.display = 'none';
-      }
-      document.getElementById('lock-open-btn').addEventListener('click', ()=>{
-        const v = document.getElementById('lock-pin').value;
-        if(v === storedPin){
-          lock.style.display = 'none';
-        }else{
-          err.textContent = '비밀번호가 틀렸습니다.';
-        }
-      });
-    }
-
-    // ---------- 초기화 ----------
-    document.addEventListener('DOMContentLoaded', ()=>{
-      loadAll();
-      setupTabs();
-      setupProductForm();
-      setupJobForm();
-      setupTapeForm();
-      setupTapeStock();
-      setupSettings();
-      setupLockScreen();
-
-      renderProducts();
-      renderTapes();
-      renderTapeOptions();
-      renderJobs();
-      renderTapeStock();
+  // ======== 탭 전환 =========
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + tab).classList.add('active');
     });
-  </script>
+  });
+
+  // ======== CSV 다운로드 =========
+  function downloadCSV(filename, headers, rows) {
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+    rows.forEach(r => {
+      csvRows.push(r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(','));
+    });
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ======== 테이프 설정 =========
+  const tapeNameInput = document.getElementById('tape-name');
+  const tapeEaInput = document.getElementById('tape-ea-per-sheet');
+  const tapeSourceInput = document.getElementById('tape-source');
+  const tapeSettingsTbody = document.getElementById('tape-settings-tbody');
+  const workTapeSelect = document.getElementById('work-tape');
+  const tapeInNameSelect = document.getElementById('tape-in-name');
+
+  function refreshTapeSelects() {
+    [workTapeSelect, tapeInNameSelect].forEach(sel => {
+      const current = sel.value;
+      sel.innerHTML = '<option value="">테이프 선택</option>';
+      state.tapes.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.name;
+        opt.textContent = t.name;
+        sel.appendChild(opt);
+      });
+      if (current) sel.value = current;
+    });
+  }
+
+  function renderTapeSettings() {
+    tapeSettingsTbody.innerHTML = '';
+    state.tapes.forEach(t => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${t.name}</td>
+        <td>${t.eaPerSheet}</td>
+        <td>${t.source}</td>
+      `;
+      tapeSettingsTbody.appendChild(tr);
+    });
+    refreshTapeSelects();
+  }
+
+  document.getElementById('add-tape').addEventListener('click', () => {
+    const name = tapeNameInput.value.trim();
+    const ea = Number(tapeEaInput.value);
+    const source = tapeSourceInput.value;
+    if (!name || !ea) {
+      alert('테이프명과 EA/장을 입력해 주세요.');
+      return;
+    }
+    const idx = state.tapes.findIndex(t => t.name === name);
+    const entry = { name, eaPerSheet: ea, source };
+    if (idx >= 0) {
+      state.tapes[idx] = entry;
+    } else {
+      state.tapes.push(entry);
+    }
+    tapeNameInput.value = '';
+    tapeEaInput.value = '';
+    saveState();
+    renderTapeSettings();
+  });
+
+  // ======== 제품 재고 =========
+  const productNameInput = document.getElementById('product-name');
+  const productEaInput = document.getElementById('product-ea');
+  const productLotInput = document.getElementById('product-lot');
+  const productPrinterInput = document.getElementById('product-printer');
+  const productStockTbody = document.getElementById('product-stock-tbody');
+  const productNameList = document.getElementById('product-name-list');
+  const lotList = document.getElementById('lot-list');
+
+  function renderProductStock() {
+    productStockTbody.innerHTML = '';
+    state.productStocks.forEach(ps => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${ps.date}</td>
+        <td>${ps.productName}</td>
+        <td>${ps.ea}</td>
+        <td>${ps.lot}</td>
+        <td>${ps.printer}</td>
+      `;
+      productStockTbody.appendChild(tr);
+    });
+
+    // datalist 자동완성용
+    const productNames = [...new Set(state.productStocks.map(p => p.productName))];
+    productNameList.innerHTML = '';
+    productNames.forEach(n => {
+      const opt = document.createElement('option');
+      opt.value = n;
+      productNameList.appendChild(opt);
+    });
+
+    const lots = [...new Set(state.productStocks.map(p => p.lot))];
+    lotList.innerHTML = '';
+    lots.forEach(l => {
+      const opt = document.createElement('option');
+      opt.value = l;
+      lotList.appendChild(opt);
+    });
+  }
+
+  document.getElementById('add-product-stock').addEventListener('click', () => {
+    const name = productNameInput.value.trim();
+    const ea = Number(productEaInput.value);
+    const lot = productLotInput.value.trim();
+    const printer = productPrinterInput.value.trim();
+    if (!name || !ea || !lot || !printer) {
+      alert('제품명, 수량, LOT, 인쇄자를 모두 입력해 주세요.');
+      return;
+    }
+    state.productStocks.push({
+      id: uid(),
+      date: todayStr(),
+      productName: name,
+      ea,
+      lot,
+      printer
+    });
+    productNameInput.value = '';
+    productEaInput.value = '';
+    productLotInput.value = '';
+    productPrinterInput.value = '';
+    saveState();
+    renderProductStock();
+  });
+
+  document.getElementById('download-product-csv').addEventListener('click', () => {
+    const rows = state.productStocks.map(p => [
+      p.date,
+      p.productName,
+      p.ea,
+      p.lot,
+      p.printer
+    ]);
+    downloadCSV('product_stock.csv', ['날짜', '제품명', 'EA', '발신LOT', '인쇄자'], rows);
+  });
+
+  // ======== 작업 등록 & 제품 재고 차감 =========
+  const workDateInput = document.getElementById('work-date');
+  const workProductNameInput = document.getElementById('work-product-name');
+  const workLotInput = document.getElementById('work-lot');
+  const workEaInput = document.getElementById('work-ea');
+  const workSheetsInput = document.getElementById('work-sheets');
+  const workDefectInput = document.getElementById('work-defect');
+  const workDestinationSelect = document.getElementById('work-destination');
+  const workTbody = document.getElementById('work-tbody');
+
+  workDateInput.value = todayStr();
+  document.getElementById('tape-in-date').value = todayStr();
+
+  function renderWorkTable() {
+    workTbody.innerHTML = '';
+    state.workRecords
+      .slice()
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .forEach(w => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${w.date}</td>
+          <td>${w.productName}</td>
+          <td>${w.lot}</td>
+          <td>${w.tapeName}</td>
+          <td>${w.eaUsed}</td>
+          <td>${w.sheetsUsed}</td>
+          <td>${w.defectSheets}</td>
+          <td>${w.destination}</td>
+        `;
+        workTbody.appendChild(tr);
+      });
+  }
+
+  // 테이프 설정에서 EA/장 가져오기
+  function getEaPerSheet(tapeName) {
+    const t = state.tapes.find(t => t.name === tapeName);
+    return t ? t.eaPerSheet : 0;
+  }
+
+  document.getElementById('add-work').addEventListener('click', () => {
+    const date = workDateInput.value || todayStr();
+    const productName = workProductNameInput.value.trim();
+    const lot = workLotInput.value.trim();
+    const tapeName = workTapeSelect.value;
+    let ea = Number(workEaInput.value);
+    let sheets = Number(workSheetsInput.value);
+    const defect = Number(workDefectInput.value || 0);
+    const dest = workDestinationSelect.value;
+
+    if (!productName || !lot || !tapeName) {
+      alert('제품명, LOT, 테이프를 모두 선택해 주세요.');
+      return;
+    }
+    const eaPerSheet = getEaPerSheet(tapeName);
+    if (!ea && !sheets) {
+      alert('EA 또는 테이프 장수 중 하나 이상은 입력해야 해요.');
+      return;
+    }
+    if (!ea) ea = sheets * eaPerSheet;
+    if (!sheets) sheets = eaPerSheet ? Math.round(ea / eaPerSheet) : 0;
+
+    // 제품 재고 차감 (같은 LOT부터 차감)
+    let remainToUse = ea;
+    const stocks = state.productStocks.filter(p => p.productName === productName && p.lot === lot);
+    stocks.sort((a, b) => a.date.localeCompare(b.date));
+    for (const s of stocks) {
+      if (remainToUse <= 0) break;
+      const use = Math.min(s.ea, remainToUse);
+      s.ea -= use;
+      remainToUse -= use;
+    }
+    // 0 된 재고 삭제
+    state.productStocks = state.productStocks.filter(s => s.ea > 0);
+
+    if (remainToUse > 0) {
+      alert('주의: 제품 재고보다 더 많이 사용했어요. 재고를 한 번 확인해 주세요.');
+    }
+
+    state.workRecords.push({
+      id: uid(),
+      date,
+      productName,
+      lot,
+      tapeName,
+      eaUsed: ea,
+      sheetsUsed: sheets,
+      defectSheets: defect,
+      destination: dest
+    });
+
+    workProductNameInput.value = '';
+    workLotInput.value = '';
+    workEaInput.value = '';
+    workSheetsInput.value = '';
+    workDefectInput.value = '';
+
+    saveState();
+    renderProductStock();
+    renderWorkTable();
+    renderTapeStock();
+    refreshDailyView();
+  });
+
+  // ======== 테이프 입고 & 재고 계산 =========
+  const tapeInDateInput = document.getElementById('tape-in-date');
+  const tapeInSourceSelect = document.getElementById('tape-in-source');
+  const tapeInQtyInput = document.getElementById('tape-in-qty');
+  const tapeStockTbody = document.getElementById('tape-stock-tbody');
+
+  document.getElementById('add-tape-in').addEventListener('click', () => {
+    const date = tapeInDateInput.value || todayStr();
+    const tapeName = tapeInNameSelect.value;
+    const source = tapeInSourceSelect.value;
+    const qty = Number(tapeInQtyInput.value);
+    if (!tapeName || !qty) {
+      alert('테이프와 입고 장수를 입력해 주세요.');
+      return;
+    }
+    state.tapeInRecords.push({
+      id: uid(),
+      date,
+      tapeName,
+      qty,
+      source
+    });
+    tapeInQtyInput.value = '';
+    saveState();
+    renderTapeStock();
+    refreshDailyView();
+  });
+
+  function computeTapeSummary(uptoDate) {
+    const map = new Map(); // tapeName -> stats
+    function ensure(tapeName) {
+      if (!map.has(tapeName)) {
+        const t = state.tapes.find(tt => tt.name === tapeName);
+        map.set(tapeName, {
+          tapeName,
+          eaPerSheet: t ? t.eaPerSheet : 0,
+          inQty: 0,
+          usedQty: 0,
+          defectQty: 0,
+          adjust: 0
+        });
+      }
+      return map.get(tapeName);
+    }
+
+    state.tapeInRecords.forEach(r => {
+      if (withinDate(r.date, uptoDate)) {
+        const s = ensure(r.tapeName);
+        s.inQty += Number(r.qty);
+      }
+    });
+
+    state.workRecords.forEach(w => {
+      if (withinDate(w.date, uptoDate)) {
+        const s = ensure(w.tapeName);
+        s.usedQty += Number(w.sheetsUsed);
+        s.defectQty += Number(w.defectSheets || 0);
+      }
+    });
+
+    state.tapeAdjustments.forEach(a => {
+      if (withinDate(a.date, uptoDate)) {
+        const s = ensure(a.tapeName);
+        s.adjust += Number(a.delta);
+      }
+    });
+
+    // ensure all tapes appear
+    state.tapes.forEach(t => ensure(t.name));
+
+    const list = Array.from(map.values());
+    list.forEach(s => {
+      s.current = s.inQty - s.usedQty - s.defectQty + s.adjust;
+    });
+    return list;
+  }
+
+  function renderTapeStock() {
+    const summary = computeTapeSummary(null);
+    tapeStockTbody.innerHTML = '';
+    summary.forEach(s => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${s.tapeName}</td>
+        <td>${s.eaPerSheet}</td>
+        <td>${s.inQty}</td>
+        <td>${s.usedQty}</td>
+        <td>${s.defectQty}</td>
+        <td class="align-right"><span class="pill">${s.adjust}</span></td>
+        <td>${s.current}</td>
+      `;
+      tapeStockTbody.appendChild(tr);
+    });
+  }
+
+  document.getElementById('download-tape-csv').addEventListener('click', () => {
+    const summary = computeTapeSummary(null);
+    const rows = summary.map(s => [
+      s.tapeName,
+      s.eaPerSheet,
+      s.inQty,
+      s.usedQty,
+      s.defectQty,
+      s.adjust,
+      s.current
+    ]);
+    downloadCSV('tape_stock.csv',
+      ['테이프명', 'EA/장', '입고 장수', '사용 장수', '불량 장수', '조정', '현재 장수'],
+      rows);
+  });
+
+  // ======== 일별 조회 =========
+  let dailyDate = todayStr();
+  const dailyLabel = document.getElementById('daily-date-label');
+  const dailyTapeTbody = document.getElementById('daily-tape-tbody');
+  const dailyWorkTbody = document.getElementById('daily-work-tbody');
+
+  function refreshDailyView() {
+    dailyLabel.textContent = formatDateLabel(dailyDate);
+
+    const summary = computeTapeSummary(dailyDate);
+    dailyTapeTbody.innerHTML = '';
+    summary.forEach(s => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${s.tapeName}</td>
+        <td>${s.inQty}</td>
+        <td>${s.usedQty}</td>
+        <td>${s.defectQty}</td>
+        <td>${s.adjust}</td>
+        <td>${s.current}</td>
+      `;
+      dailyTapeTbody.appendChild(tr);
+    });
+
+    dailyWorkTbody.innerHTML = '';
+    state.workRecords
+      .filter(w => w.date === dailyDate)
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .forEach((w, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td>${w.productName}</td>
+          <td>${w.lot}</td>
+          <td>${w.tapeName}</td>
+          <td>${w.eaUsed}</td>
+          <td>${w.sheetsUsed}</td>
+          <td>${w.defectSheets}</td>
+          <td>${w.destination}</td>
+        `;
+        dailyWorkTbody.appendChild(tr);
+      });
+  }
+
+  document.getElementById('daily-prev').addEventListener('click', () => {
+    const d = new Date(dailyDate);
+    d.setDate(d.getDate() - 1);
+    dailyDate = d.toISOString().slice(0, 10);
+    refreshDailyView();
+  });
+
+  document.getElementById('daily-next').addEventListener('click', () => {
+    const d = new Date(dailyDate);
+    d.setDate(d.getDate() + 1);
+    dailyDate = d.toISOString().slice(0, 10);
+    refreshDailyView();
+  });
+
+  // ======== 비밀번호 잠금 (간단 버전) =========
+  const currentPinInput = document.getElementById('current-pin');
+  const newPinInput = document.getElementById('new-pin');
+
+  function checkPinIfNeeded(action) {
+    const pin = state.settings.pin;
+    if (!pin) {
+      action();
+      return;
+    }
+    const entered = prompt('비밀번호를 입력해 주세요.');
+    if (entered === pin) {
+      action();
+    } else {
+      alert('비밀번호가 맞지 않아요.');
+    }
+  }
+
+  document.getElementById('set-pin').addEventListener('click', () => {
+    const current = currentPinInput.value;
+    const newPin = newPinInput.value;
+    if (state.settings.pin && current !== state.settings.pin) {
+      alert('현재 비밀번호가 맞지 않아요.');
+      return;
+    }
+    state.settings.pin = newPin || '';
+    saveState();
+    alert('비밀번호가 설정/변경되었어요.');
+    currentPinInput.value = '';
+    newPinInput.value = '';
+  });
+
+  document.getElementById('clear-pin').addEventListener('click', () => {
+    if (!state.settings.pin) {
+      alert('현재 설정된 비밀번호가 없어요.');
+      return;
+    }
+    const entered = prompt('현재 비밀번호를 입력해 주세요.');
+    if (entered === state.settings.pin) {
+      state.settings.pin = '';
+      saveState();
+      alert('비밀번호가 해제되었어요.');
+    } else {
+      alert('비밀번호가 맞지 않아요.');
+    }
+  });
+
+  // ======== 초기 렌더 =========
+  renderTapeSettings();
+  renderProductStock();
+  renderWorkTable();
+  renderTapeStock();
+  refreshDailyView();
+</script>
 </body>
-</html>
+  </html>
