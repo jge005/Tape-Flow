@@ -230,6 +230,78 @@
       color: var(--text-sub);
     }
 
+    .subtab-row {
+      display: inline-flex;
+      gap: 6px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.7);
+      margin-bottom: 10px;
+    }
+    .subtab-button {
+      border-radius: 999px;
+      border: none;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      background: transparent;
+      color: var(--text-sub);
+    }
+    .subtab-button.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(79,70,229,0.4);
+    }
+
+    .date-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .date-nav button {
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255,255,255,0.9);
+      padding: 4px 10px;
+      font-size: 12px;
+    }
+    .date-nav input[type="date"] {
+      max-width: 150px;
+      padding: 6px 10px;
+      font-size: 12px;
+      margin-bottom: 0;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .stat-card {
+      border-radius: 16px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.85);
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 4px 14px rgba(15,23,42,0.08);
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+    }
+    .stat-value {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .stat-sub {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-top: 2px;
+    }
+
     @media (min-width: 720px) {
       .card-grid {
         display: grid;
@@ -249,114 +321,186 @@
     </div>
   </header>
 
+  <!-- 상단 네비게이션: 대시보드 / 재고 / 작업 / 설정 -->
   <nav class="tab-row">
-    <button class="tab-button active" data-tab="work">작업 등록</button>
-    <button class="tab-button" data-tab="tape-stock">테이프 재고</button>
-    <button class="tab-button" data-tab="tape-settings">테이프 설정</button>
+    <button class="tab-button active" data-tab="dashboard">대시보드</button>
+    <button class="tab-button" data-tab="stock">재고</button>
+    <button class="tab-button" data-tab="work">작업</button>
     <button class="tab-button" data-tab="settings">설정</button>
   </nav>
 
-  <!-- 작업 등록 / 제품 재고 -->
-  <section id="section-work" class="tab-section active">
+  <!-- 1. 대시보드 -->
+  <section id="section-dashboard" class="tab-section active">
     <div class="card">
-      <h2>제품 재고 등록</h2>
-      <p class="card-sub">인쇄실에서 내려온 <b>작업 전 제품</b>을 등록해요. 같은 제품이라도 세트·LOT마다 따로 등록합니다.</p>
-      <form id="product-form">
-        <label>제품명</label>
-        <input id="product-name" list="product-name-list" placeholder="예: 7125J" required />
-        <label>수량 (EA)</label>
-        <input id="product-ea" type="number" min="1" placeholder="예: 2520" required />
-        <label>발신 LOT</label>
-        <input id="product-lot" list="product-lot-list" placeholder="예: LOT123" />
-        <label>인쇄자</label>
-        <input id="product-printer" list="product-printer-list" placeholder="예: 김주현" />
-        <div class="btn-row">
-          <button type="submit" class="btn-primary" id="product-submit-btn">재고 추가</button>
-          <button type="button" class="btn-secondary" id="product-cancel-edit" style="display:none;">수정 취소</button>
-        </div>
-      </form>
-      <div class="table-wrapper" id="product-table-wrap" style="margin-top:12px;"></div>
-      <button class="btn-secondary" id="product-csv-btn" style="margin-top:8px;">제품 재고 CSV 다운로드</button>
+      <h2>오늘 요약</h2>
+      <p class="card-sub">오늘 기준 작업/테이프 현황을 한눈에 볼 수 있어요.</p>
+      <div id="dashboard-content" class="dashboard-grid"></div>
     </div>
+  </section>
 
+  <!-- 2. 재고 (제품 / 테이프) -->
+  <section id="section-stock" class="tab-section">
+    <div class="card">
+      <div class="subtab-row">
+        <button class="subtab-button active" data-stock="product">제품 재고</button>
+        <button class="subtab-button" data-stock="tape">테이프 재고</button>
+      </div>
+
+      <!-- 제품 재고 Pane -->
+      <div id="stock-product-pane">
+        <h2>제품 재고</h2>
+        <p class="card-sub">
+          인쇄실에서 내려온 <b>작업 전 제품</b>을 등록해요.<br>
+          같은 제품이라도 세트·LOT마다 따로 등록합니다.
+        </p>
+        <form id="product-form">
+          <label>제품명</label>
+          <input id="product-name" list="product-name-list" placeholder="예: 7125J" required />
+          <label>수량 (EA)</label>
+          <input id="product-ea" type="number" min="1" placeholder="예: 2520" required />
+          <label>발신 LOT (선택)</label>
+          <input id="product-lot" list="product-lot-list" placeholder="예: LOT123" />
+          <label>인쇄자 (선택)</label>
+          <input id="product-printer" list="product-printer-list" placeholder="예: 김주현" />
+          <div class="btn-row">
+            <button type="submit" class="btn-primary" id="product-submit-btn">재고 추가</button>
+            <button type="button" class="btn-secondary" id="product-cancel-edit" style="display:none;">수정 취소</button>
+          </div>
+        </form>
+        <div class="table-wrapper" id="product-table-wrap" style="margin-top:12px;"></div>
+        <button class="btn-secondary" id="product-csv-btn" style="margin-top:8px;">제품 재고 CSV 다운로드</button>
+        <p class="small-text" style="margin-top:6px;">
+          제품명과 수량(EA)만 입력해도 등록할 수 있어요. LOT/인쇄자는 나중에 작업 등록할 때 입력해도 됩니다.
+        </p>
+      </div>
+
+      <!-- 테이프 재고 Pane -->
+      <div id="stock-tape-pane" style="display:none;">
+        <h2>테이프 재고</h2>
+        <p class="card-sub">
+          가공실 / 태성에서 올라온 테이프 입고와 사용·불량을 모두 반영한 잔량을 관리해요.
+        </p>
+
+        <!-- 테이프 입고 등록 -->
+        <form id="tape-in-form">
+          <label>입고 날짜</label>
+          <input id="tape-in-date" type="date" required />
+          <label>테이프</label>
+          <select id="tape-in-tape" required>
+            <option value="">테이프 선택</option>
+          </select>
+          <label>입고 장수</label>
+          <input id="tape-in-qty" type="number" min="1" placeholder="예: 300" required />
+          <label>메모 (선택)</label>
+          <input id="tape-in-memo" placeholder="예: 가공실 작업분" />
+          <button type="submit" class="btn-primary" style="margin-top:4px;">입고 추가</button>
+        </form>
+
+        <!-- 현재 테이프 재고 현황 -->
+        <div class="card" style="margin-top:14px;">
+          <h2>현재 테이프 재고 현황</h2>
+          <p class="card-sub">
+            입고·사용·불량·조정을 모두 합쳐 계산된 <b>현재 잔량</b>이에요.<br>
+            실제 재고와 다르면 “잔량 수정”으로 맞춰 둘 수 있어요.
+          </p>
+          <div class="table-wrapper" id="tape-stock-table-wrap"></div>
+          <div class="btn-row" style="margin-top:8px;">
+            <button class="btn-secondary" id="tape-stock-csv-btn">테이프 재고 CSV 다운로드</button>
+          </div>
+          <p class="small-text" style="margin-top:6px;">
+            잔량 수정은 계산값과 실제 재고가 다를 때 <b>차이만큼 보정</b>해 두는 용도예요.
+          </p>
+        </div>
+
+        <!-- 날짜별 테이프 재고표 -->
+        <div class="card" style="margin-top:10px;">
+          <h2>날짜별 테이프 재고표</h2>
+          <p class="card-sub">
+            날짜를 바꾸면 그 날짜 기준으로 입고·사용·불량·조정을 모두 반영한 잔량을 볼 수 있어요. (약 100일 정도 조회용)
+          </p>
+          <div class="date-nav">
+            <button type="button" id="history-prev-btn">◀ 전날</button>
+            <input id="tape-history-date" type="date" />
+            <button type="button" id="history-next-btn">다음날 ▶</button>
+          </div>
+          <div class="table-wrapper" id="tape-history-table-wrap"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. 작업 -->
+  <section id="section-work" class="tab-section">
     <div class="card">
       <h2>작업 등록</h2>
-      <p class="card-sub">어떤 제품을 얼마나 붙였고, 테이프는 몇 장 사용했는지 기록해요. 잘못 입력한 작업은 아래 목록에서 수정·삭제할 수 있어요.</p>
+      <p class="card-sub">
+        어떤 제품을 얼마나 붙였고, 테이프는 몇 장 사용했는지 기록해요.<br>
+        제품명을 입력하면 자동완성되고, LOT/인쇄자도 가능한 한 자동으로 채워져요.
+      </p>
       <form id="job-form">
         <label>작업 날짜</label>
         <input id="job-date" type="date" required />
+
         <label>제품 선택 / 이름</label>
         <input id="job-product" list="job-product-list" placeholder="제품명 또는 제품명 + LOT" />
+
         <label>발신 LOT</label>
         <input id="job-lot" list="product-lot-list" placeholder="예: LOT123" />
+
         <label>인쇄자</label>
         <input id="job-printer" list="product-printer-list" placeholder="예: 김주현" />
+
         <label>사용 수량 (EA)</label>
-        <input id="job-ea" type="number" min="0" placeholder="예: 2520 (비워두면 테이프 장수 기준으로 계산)" />
+        <input id="job-ea" type="number" min="0" placeholder="예: 2520 (비우면 자동 계산 가능)" />
+
         <label>테이프</label>
         <select id="job-tape">
           <option value="">테이프 선택</option>
         </select>
+
         <label>테이프 사용 장수</label>
-        <input id="job-sheets" type="number" min="0" placeholder="예: 300 (비워두면 EA / 장 수로 계산)" />
+        <input id="job-sheets" type="number" min="0" placeholder="예: 300 (비우면 EA 기준으로 계산)" />
+
         <label>테이프 불량 장수</label>
         <input id="job-waste" type="number" min="0" placeholder="예: 2" value="0" />
+
         <label>메모 (선택)</label>
         <input id="job-memo" placeholder="예: SPIN 1세트만 작업" />
+
         <div class="btn-row">
           <button type="submit" class="btn-primary" id="job-submit-btn">작업 저장</button>
           <button type="button" class="btn-secondary" id="job-cancel-edit" style="display:none;">수정 취소</button>
         </div>
       </form>
 
-      <div style="margin-top:14px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-          <span class="small-text">특정 날짜 작업만 보고 싶으면 날짜를 선택해요.</span>
-          <input id="job-filter-date" type="date" style="max-width:140px;font-size:11px;padding:5px 8px;" />
-        </div>
-        <div class="table-wrapper" id="job-table-wrap" style="margin-top:8px;"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 테이프 재고 -->
-  <section id="section-tape-stock" class="tab-section">
-    <div class="card">
-      <h2>테이프 입고 등록</h2>
-      <p class="card-sub">가공실·태성에서 올라온 테이프 장수를 등록해요.</p>
-      <form id="tape-in-form">
-        <label>입고 날짜</label>
-        <input id="tape-in-date" type="date" required />
-        <label>테이프</label>
-        <select id="tape-in-tape" required>
-          <option value="">테이프 선택</option>
-        </select>
-        <label>입고 장수</label>
-        <input id="tape-in-qty" type="number" min="1" placeholder="예: 300" required />
-        <label>메모 (선택)</label>
-        <input id="tape-in-memo" placeholder="예: 가공실 작업분" />
-        <button type="submit" class="btn-primary" style="margin-top:4px;">입고 추가</button>
-      </form>
-    </div>
-
-    <div class="card">
-      <h2>테이프 재고 현황</h2>
-      <p class="card-sub">입고·사용·불량을 모두 반영한 현재 잔량이에요. 실제 재고랑 다르면 “잔량 수정”으로 맞춰 둘 수 있어요.</p>
-      <div class="table-wrapper" id="tape-stock-table-wrap"></div>
-      <div class="btn-row" style="margin-top:8px;">
-        <button class="btn-secondary" id="tape-stock-csv-btn">테이프 재고 CSV 다운로드</button>
-      </div>
-      <p class="small-text" style="margin-top:6px;">
-        잔량 수정은 계산값과 실제 재고가 다를 때 <b>차이만큼 보정</b>해 두는 용도예요. (조정 내역은 따로 합산 보관)
+      <p class="small-text" style="margin-top:8px;">
+        EA/테이프 장수를 둘 다 비워두면, 제품명+LOT 기준으로 <b>한 세트 EA</b>를 자동으로 넣고,<br>
+        테이프 설정의 EA/장 비율로 장수를 계산해 줄 수 있어요.
       </p>
     </div>
+
+    <div class="card">
+      <h2>작업 기록</h2>
+      <p class="card-sub">
+        날짜별 작업 내역이에요. 잘못 입력한 건 수정·삭제할 수 있어요.
+      </p>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span class="small-text">특정 날짜 작업만 보고 싶으면 날짜를 선택해요.</span>
+        <input id="job-filter-date" type="date" style="max-width:140px;font-size:11px;padding:5px 8px;" />
+      </div>
+      <div class="table-wrapper" id="job-table-wrap" style="margin-top:8px;"></div>
+    </div>
   </section>
 
-  <!-- 테이프 설정 -->
-  <section id="section-tape-settings" class="tab-section">
+  <!-- 4. 설정 -->
+  <section id="section-settings" class="tab-section">
+    <!-- 테이프 설정 -->
     <div class="card">
-      <h2>테이프 기본 정보</h2>
-      <p class="card-sub">새 테이프 종류를 추가하거나 EA/장·출처를 수정할 수 있어요.</p>
+      <h2>테이프 설정</h2>
+      <p class="card-sub">
+        새 테이프 종류를 추가하거나 EA/장·출처를 수정할 수 있어요.<br>
+        이 정보로 작업 등록 시 EA/테이프 장수를 자동 계산해요.
+      </p>
       <form id="tape-form">
         <label>테이프명</label>
         <input id="tape-name" placeholder="예: 6855, 6491" required />
@@ -373,13 +517,10 @@
           <button type="button" class="btn-secondary" id="tape-cancel-edit" style="display:none;">수정 취소</button>
         </div>
       </form>
-
       <div class="table-wrapper" id="tape-table-wrap" style="margin-top:10px;"></div>
     </div>
-  </section>
 
-  <!-- 설정 -->
-  <section id="section-settings" class="tab-section">
+    <!-- 테마 설정 -->
     <div class="card">
       <h2>테마 · 화면 설정</h2>
       <p class="card-sub">라이트 / 다크 테마를 바꿀 수 있어요.</p>
@@ -389,9 +530,12 @@
       <p class="small-text" id="theme-status" style="margin-top:6px;"></p>
     </div>
 
+    <!-- 비밀번호 설정 -->
     <div class="card">
       <h2>비밀번호 설정</h2>
-      <p class="card-sub">다른 사람이 마음대로 수정하지 못하게 간단한 비밀번호를 걸 수 있어요.</p>
+      <p class="card-sub">
+        다른 사람이 마음대로 수정하지 못하게 간단한 비밀번호를 걸 수 있어요.
+      </p>
       <form id="password-form">
         <label>현재 비밀번호 (있을 경우)</label>
         <input id="password-current" type="password" />
@@ -406,6 +550,19 @@
         비밀번호가 설정된 상태에서 처음 접속하면 한 번 확인을 요청하고, 그 세션 동안은 계속 쓸 수 있어요.
       </p>
     </div>
+
+    <!-- 계정 역할 골격 (추후 확장용) -->
+    <div class="card">
+      <h2>계정 역할 (준비 중)</h2>
+      <p class="card-sub">
+        앞으로는 테이프실 / 가공실1 / 태성 / 대리님 / 부장님 계정을 나눠서,<br>
+        민감한 설정은 관리자만 변경할 수 있도록 확장할 수 있어요.<br>
+        지금은 구조만 잡아두고, 실제 권한 분리는 나중에 업데이트할 수 있게 설계해 뒀어요.
+      </p>
+      <p class="small-text">
+        현재는 Film Find처럼 <b>공용 비밀번호 1개 + 기기 단위 사용</b> 구조로 동작합니다.
+      </p>
+    </div>
   </section>
 
   <!-- datalists -->
@@ -413,7 +570,6 @@
   <datalist id="product-lot-list"></datalist>
   <datalist id="product-printer-list"></datalist>
   <datalist id="job-product-list"></datalist>
-
 </div>
 
 <script>
@@ -453,6 +609,7 @@
   let products = load(STORAGE_KEYS.products, []);
   let tapeInLogs = load(STORAGE_KEYS.tapeInLogs, []);
   let jobs = load(STORAGE_KEYS.jobs, []);
+  // 조정 값은 테이프별 누적 diff만 저장 (날짜별 조회에서도 같은 diff 적용)
   let tapeAdjust = load(STORAGE_KEYS.tapeAdjust, {});
   let settings = load(STORAGE_KEYS.settings, {
     theme: "light",
@@ -462,6 +619,8 @@
   let editingProductId = null;
   let editingTapeId = null;
   let editingJobId = null;
+
+  let tapeHistoryDateStr = null;
 
   // ====== Auth check (password) ======
   function ensureAuth() {
@@ -518,6 +677,13 @@
     const da = String(d.getDate()).padStart(2, "0");
     return `${d.getFullYear()}-${m}-${da}`;
   }
+  function shiftDateStr(str, deltaDays) {
+    const d = str ? new Date(str) : new Date();
+    d.setDate(d.getDate() + deltaDays);
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const da = String(d.getDate()).padStart(2, "0");
+    return `${d.getFullYear()}-${m}-${da}`;
+  }
 
   // ====== Autocomplete lists ======
   function refreshAutocomplete() {
@@ -540,8 +706,9 @@
       if (p.lot) lotSet.add(p.lot);
       if (p.printer) printerSet.add(p.printer);
 
+      // 작업용 제품 선택: "제품명 (LOT)" 형식
       const opt = document.createElement("option");
-      opt.value = `${p.name} (${p.lot || "LOT없음"})`;
+      opt.value = `${p.name}${p.lot ? " (" + p.lot + ")" : ""}`;
       jobProductDL.appendChild(opt);
     });
 
@@ -565,12 +732,13 @@
   // ====== Product stock rendering ======
   function renderProductTable() {
     const wrap = document.getElementById("product-table-wrap");
-    if (products.length === 0) {
+    const visible = products.filter((p) => (p.ea ?? 0) > 0);
+    if (visible.length === 0) {
       wrap.innerHTML =
         '<p class="small-text">등록된 제품 재고가 아직 없어요.</p>';
       return;
     }
-    const rows = products
+    const rows = visible
       .slice()
       .sort((a, b) => b.createdAt - a.createdAt)
       .map((p) => {
@@ -594,7 +762,7 @@
         <table>
           <thead>
             <tr>
-              <th>날짜</th><th>제품명</th><th>EA</th><th>발신 LOT</th><th>인쇄자</th><th>관리</th>
+              <th>등록일</th><th>제품명</th><th>EA</th><th>발신 LOT</th><th>인쇄자</th><th>관리</th>
             </tr>
           </thead>
           <tbody>${rows}</tbody>
@@ -638,6 +806,7 @@
       document.getElementById("product-form").reset();
       renderProductTable();
       refreshAutocomplete();
+      renderDashboard();
     }
   }
 
@@ -671,6 +840,7 @@
         if (p) {
           p.name = name;
           p.ea = ea;
+          p.initialEa = ea;
           p.lot = lot || null;
           p.printer = printer || null;
         }
@@ -679,6 +849,7 @@
           id: uid(),
           name,
           ea,
+          initialEa: ea,
           lot: lot || null,
           printer: printer || null,
           createdAt: Date.now(),
@@ -693,6 +864,7 @@
         "none";
       renderProductTable();
       refreshAutocomplete();
+      renderDashboard();
     });
 
   document
@@ -710,13 +882,14 @@
   document
     .getElementById("product-csv-btn")
     .addEventListener("click", () => {
-      if (products.length === 0) {
+      const visible = products.filter((p) => (p.ea ?? 0) > 0);
+      if (visible.length === 0) {
         alert("내보낼 제품 재고가 없어요.");
         return;
       }
-      const header = ["날짜", "제품명", "EA", "발신LOT", "인쇄자"];
+      const header = ["등록일", "제품명", "EA", "발신LOT", "인쇄자"];
       const lines = [header.join(",")];
-      products.forEach((p) => {
+      visible.forEach((p) => {
         lines.push(
           [
             new Date(p.createdAt).toLocaleDateString("ko-KR"),
@@ -729,6 +902,88 @@
       });
       downloadCsv("제품재고.csv", lines.join("\n"));
     });
+
+  // ====== Job helpers ======
+  function findProductsByNameAndLot(name, lot) {
+    return products.filter(
+      (p) =>
+        p.name === name &&
+        (lot ? p.lot === lot : true)
+    );
+  }
+
+  function parseJobProductInput(raw) {
+    let productName = raw.trim();
+    let lot = null;
+    const m = productName.match(/^(.*)\((.*)\)$/);
+    if (m) {
+      productName = m[1].trim();
+      lot = m[2].trim();
+    }
+    return { productName, lot };
+  }
+
+  function onJobProductChange() {
+    const raw = document.getElementById("job-product").value.trim();
+    if (!raw) return;
+    const { productName, lot: fromInputLot } = parseJobProductInput(raw);
+    const lotInput = document.getElementById("job-lot");
+    const printerInput = document.getElementById("job-printer");
+
+    // 1) 제품명 + LOT 형식으로 들어온 경우
+    if (fromInputLot) {
+      lotInput.value = fromInputLot;
+    }
+
+    const lot = lotInput.value.trim() || fromInputLot || null;
+    let candidates = findProductsByNameAndLot(productName, lot);
+
+    // LOT 없이 동일 제품이 여러 세트면 LOT 안 넣고 name만 보고 찾을 때
+    if (!lot && candidates.length === 0) {
+      candidates = products.filter((p) => p.name === productName);
+    }
+
+    if (candidates.length === 1) {
+      const p = candidates[0];
+      if (!lotInput.value && p.lot) lotInput.value = p.lot;
+      if (!printerInput.value && p.printer) printerInput.value = p.printer;
+    }
+    // 여러 개면 LOT는 사용자가 job-lot에 직접 골라 넣도록 (자동완성 목록에서)
+  }
+
+  document
+    .getElementById("job-product")
+    .addEventListener("change", onJobProductChange);
+  document
+    .getElementById("job-product")
+    .addEventListener("blur", onJobProductChange);
+
+  document
+    .getElementById("job-lot")
+    .addEventListener("change", () => {
+      const productRaw = document.getElementById("job-product").value.trim();
+      if (!productRaw) return;
+      const { productName } = parseJobProductInput(productRaw);
+      const lotInput = document.getElementById("job-lot").value.trim();
+      const candidates = findProductsByNameAndLot(productName, lotInput);
+      if (candidates.length === 1) {
+        const p = candidates[0];
+        if (p.printer) {
+          document.getElementById("job-printer").value = p.printer;
+        }
+      }
+    });
+
+  // 제품 재고에 작업 반영 / 되돌리기
+  // direction: -1 = 사용(차감), +1 = 되돌리기(증가)
+  function applyJobToProduct(job, direction) {
+    if (!job.productId || !job.eaUsed) return;
+    const p = products.find((x) => x.id === job.productId);
+    if (!p) return;
+    const delta = direction * job.eaUsed;
+    p.ea = (p.ea || 0) + delta;
+    if (p.ea < 0) p.ea = 0;
+  }
 
   // ====== Job rendering ======
   function renderJobTable() {
@@ -785,22 +1040,6 @@
       );
   }
 
-  function adjustProductForJob(job, sign) {
-    // sign: +1 to add back, -1 to apply usage
-    if (!job.productId || !job.eaUsed) return;
-    const p = products.find((x) => x.id === job.productId);
-    if (!p) return;
-    p.ea += sign * -job.eaUsed; // 사용은 EA 감소
-    if (p.ea <= 0 && sign === -1) {
-      // 작업 적용 시 0 이하가 되면 삭제
-      products = products.filter((x) => x.id !== p.id);
-    }
-    if (p.ea < 0 && sign === 1) {
-      // 되돌릴 때 음수 방지
-      p.ea = 0;
-    }
-  }
-
   function onJobRowAction(e) {
     const id = e.target.dataset.id;
     const act = e.target.dataset.act;
@@ -832,8 +1071,9 @@
     } else if (act === "del-job") {
       if (!ensureAuth()) return;
       if (!confirm("이 작업 기록을 삭제할까요?")) return;
+
       // 제품 재고 되돌리기
-      adjustProductForJob(j, +1);
+      applyJobToProduct(j, +1);
       save(STORAGE_KEYS.products, products);
       renderProductTable();
       refreshAutocomplete();
@@ -848,6 +1088,8 @@
         "none";
       renderJobTable();
       renderTapeStockTable();
+      renderTapeHistoryTable();
+      renderDashboard();
     }
   }
 
@@ -860,10 +1102,10 @@
 
       const date =
         document.getElementById("job-date").value || todayStr();
-      let productInput = document
+      const productRaw = document
         .getElementById("job-product")
         .value.trim();
-      const lot = document
+      const lotInput = document
         .getElementById("job-lot")
         .value.trim();
       const printer = document
@@ -880,64 +1122,81 @@
         .getElementById("job-memo")
         .value.trim();
 
-      // product parsing
-      let productName = productInput;
-      if (/\(.+\)$/.test(productInput)) {
-        productName = productInput.replace(/\s*\(.+$/, "");
+      if (!tapeId) {
+        alert("테이프를 선택해 주세요.");
+        return;
       }
+
+      let productName = null;
+      let lotFromProduct = null;
+      if (productRaw) {
+        const parsed = parseJobProductInput(productRaw);
+        productName = parsed.productName;
+        lotFromProduct = parsed.lot;
+      }
+
+      const lot = lotInput || lotFromProduct || null;
 
       let ea = eaRaw ? Number(eaRaw) : null;
       let sheets = sheetsRaw ? Number(sheetsRaw) : null;
 
-      // find tape info
+      // 테이프 정보
       const tape = tapes.find((t) => t.id === tapeId);
+
+      // 해당 제품 재고 찾기 (작업 시 한 세트 기준 EA 계산에 사용)
+      let productId = null;
+      let productRecord = null;
+      if (productName) {
+        let candidates = findProductsByNameAndLot(productName, lot);
+        if (!lot && candidates.length === 0) {
+          candidates = products.filter((p) => p.name === productName);
+        }
+        if (candidates.length === 1) {
+          productRecord = candidates[0];
+          productId = productRecord.id;
+        }
+      }
+
+      // EA / 테이프 장수 계산 로직
+      // 1) EA와 장수 둘 다 비어있으면 → 한 세트 기준으로 EA 자동, 테이프 설정으로 장수 계산
+      if (!ea && !sheets && productRecord) {
+        const baseEa =
+          productRecord.initialEa ||
+          productRecord.ea ||
+          null;
+        if (!baseEa) {
+          alert("해당 제품 세트의 EA를 알 수 없어요. EA 또는 장수 중 하나를 입력해 주세요.");
+          return;
+        }
+        ea = baseEa;
+        if (tape && tape.eaPerSheet) {
+          sheets = Math.ceil(ea / tape.eaPerSheet);
+        }
+      } else {
+        // 2) EA만 있으면 → 테이프 EA/장 비율로 장수 계산
+        if (ea && !sheets && tape && tape.eaPerSheet) {
+          sheets = Math.ceil(ea / tape.eaPerSheet);
+        }
+        // 3) 장수만 있으면 → EA = 장수 × EA/장
+        if (!ea && sheets && tape && tape.eaPerSheet) {
+          ea = sheets * tape.eaPerSheet;
+        }
+      }
+
       if (!ea && !sheets) {
-        alert("EA 또는 테이프 장수 중 하나는 입력해야 해요.");
+        alert("EA 또는 테이프 장수 중 하나는 입력하거나, 제품 세트를 선택해 주세요.");
         return;
       }
-      if (!ea && tape && tape.eaPerSheet) {
-        ea = sheets * tape.eaPerSheet;
-      } else if (!sheets && tape && tape.eaPerSheet) {
-        sheets = Math.ceil(ea / tape.eaPerSheet);
-      }
 
-      // find matching product stock entry
-      let productId = null;
-      if (productName) {
-        let candidate = products.find(
-          (p) =>
-            p.name === productName &&
-            (lot ? p.lot === lot : true)
-        );
-        if (!candidate && lot) {
-          candidate = products.find(
-            (p) => p.lot === lot && p.name === productName
-          );
-        }
-        if (candidate) {
-          productId = candidate.id;
-        }
-      }
-
-      // when editing, first rollback previous effect
+      // 수정 모드: 기존 작업의 제품 재고 되돌리기
       if (editingJobId) {
         const old = jobs.find((x) => x.id === editingJobId);
         if (old) {
-          adjustProductForJob(old, +1);
+          applyJobToProduct(old, +1);
         }
       }
 
-      // apply new usage to product
-      if (productId && ea) {
-        const p = products.find((x) => x.id === productId);
-        if (p) {
-          p.ea -= ea;
-          if (p.ea <= 0) {
-            products = products.filter((x) => x.id !== p.id);
-          }
-        }
-      }
-
+      // 새 작업 객체 구성
       const jobObj = {
         id: editingJobId || uid(),
         date,
@@ -956,6 +1215,12 @@
           : Date.now(),
       };
 
+      // 새 작업을 제품 재고에 반영 (EA 차감)
+      if (productId && ea) {
+        applyJobToProduct(jobObj, -1);
+      }
+
+      // jobs 저장
       if (editingJobId) {
         jobs = jobs.map((j) => (j.id === jobObj.id ? jobObj : j));
       } else {
@@ -977,6 +1242,8 @@
       refreshAutocomplete();
       renderJobTable();
       renderTapeStockTable();
+      renderTapeHistoryTable();
+      renderDashboard();
     });
 
   document
@@ -1074,6 +1341,8 @@
         "none";
       renderTapeTable();
       renderTapeStockTable();
+      renderTapeHistoryTable();
+      renderDashboard();
     }
   }
 
@@ -1117,6 +1386,8 @@
         "none";
       renderTapeTable();
       renderTapeStockTable();
+      renderTapeHistoryTable();
+      renderDashboard();
     });
 
   document
@@ -1177,9 +1448,41 @@
       document.getElementById("tape-in-form").reset();
       document.getElementById("tape-in-date").value = date;
       renderTapeStockTable();
+      renderTapeHistoryTable();
+      renderDashboard();
     });
 
-  // ====== Tape stock rendering ======
+  // ====== Tape stock 계산 helper ======
+  function calcTapeSnapshot(tapeId, dateStr) {
+    const inQty = tapeInLogs
+      .filter(
+        (l) =>
+          l.tapeId === tapeId &&
+          (!dateStr || l.date <= dateStr)
+      )
+      .reduce((sum, l) => sum + l.qty, 0);
+    const usedSheets = jobs
+      .filter(
+        (j) =>
+          j.tapeId === tapeId &&
+          j.sheets &&
+          (!dateStr || j.date <= dateStr)
+      )
+      .reduce((sum, j) => sum + j.sheets, 0);
+    const wasteSheets = jobs
+      .filter(
+        (j) =>
+          j.tapeId === tapeId &&
+          j.wasteSheets &&
+          (!dateStr || j.date <= dateStr)
+      )
+      .reduce((sum, j) => sum + j.wasteSheets, 0);
+    const adj = tapeAdjust[tapeId] || 0;
+    const current = inQty - usedSheets - wasteSheets + adj;
+    return { inQty, usedSheets, wasteSheets, current };
+  }
+
+  // ====== Tape stock rendering (현재) ======
   function renderTapeStockTable() {
     const wrap = document.getElementById("tape-stock-table-wrap");
     if (tapes.length === 0) {
@@ -1189,25 +1492,14 @@
     }
 
     const rows = tapes.map((t) => {
-      const inQty = tapeInLogs
-        .filter((l) => l.tapeId === t.id)
-        .reduce((sum, l) => sum + l.qty, 0);
-      const usedSheets = jobs
-        .filter((j) => j.tapeId === t.id && j.sheets)
-        .reduce((sum, j) => sum + j.sheets, 0);
-      const wasteSheets = jobs
-        .filter((j) => j.tapeId === t.id && j.wasteSheets)
-        .reduce((sum, j) => sum + j.wasteSheets, 0);
-      const adj = tapeAdjust[t.id] || 0;
-      const current = inQty - usedSheets - wasteSheets + adj;
-
+      const snap = calcTapeSnapshot(t.id, null);
       return `<tr>
         <td>${t.name}</td>
         <td>${t.source}</td>
-        <td>${inQty}</td>
-        <td>${usedSheets}</td>
-        <td>${wasteSheets}</td>
-        <td>${current}</td>
+        <td>${snap.inQty}</td>
+        <td>${snap.usedSheets}</td>
+        <td>${snap.wasteSheets}</td>
+        <td>${snap.current}</td>
         <td>
           <button class="chip-btn" data-act="adjust-stock" data-id="${
             t.id
@@ -1242,21 +1534,9 @@
     const t = tapes.find((x) => x.id === tapeId);
     if (!t) return;
 
-    const inQty = tapeInLogs
-      .filter((l) => l.tapeId === t.id)
-      .reduce((sum, l) => sum + l.qty, 0);
-    const usedSheets = jobs
-      .filter((j) => j.tapeId === t.id && j.sheets)
-      .reduce((sum, j) => sum + j.sheets, 0);
-    const wasteSheets = jobs
-      .filter((j) => j.tapeId === t.id && j.wasteSheets)
-      .reduce((sum, j) => sum + j.wasteSheets, 0);
-    const currentAdj = tapeAdjust[t.id] || 0;
-    const autoCurrent =
-      inQty - usedSheets - wasteSheets + currentAdj;
-
+    const snap = calcTapeSnapshot(t.id, null);
     const input = prompt(
-      `${t.name} 실제 잔량을 입력해 주세요.\n(현재 계산값: ${autoCurrent}장)`
+      `${t.name} 실제 잔량을 입력해 주세요.\n(현재 계산값: ${snap.current}장)`
     );
     if (input === null) return;
     const real = Number(input);
@@ -1264,10 +1544,12 @@
       alert("숫자를 입력해 주세요.");
       return;
     }
-    const diff = real - autoCurrent;
+    const diff = real - snap.current;
     tapeAdjust[t.id] = (tapeAdjust[t.id] || 0) + diff;
     save(STORAGE_KEYS.tapeAdjust, tapeAdjust);
     renderTapeStockTable();
+    renderTapeHistoryTable();
+    renderDashboard();
   }
 
   // ====== Tape CSV ======
@@ -1288,31 +1570,90 @@
       ];
       const lines = [header.join(",")];
       tapes.forEach((t) => {
-        const inQty = tapeInLogs
-          .filter((l) => l.tapeId === t.id)
-          .reduce((sum, l) => sum + l.qty, 0);
-        const usedSheets = jobs
-          .filter((j) => j.tapeId === t.id && j.sheets)
-          .reduce((sum, j) => sum + j.sheets, 0);
-        const wasteSheets = jobs
-          .filter((j) => j.tapeId === t.id && j.wasteSheets)
-          .reduce((sum, j) => sum + j.wasteSheets, 0);
-        const adj = tapeAdjust[t.id] || 0;
-        const current = inQty - usedSheets - wasteSheets + adj;
-
+        const snap = calcTapeSnapshot(t.id, null);
         lines.push(
           [
             t.name,
             t.source,
-            inQty,
-            usedSheets,
-            wasteSheets,
-            current,
+            snap.inQty,
+            snap.usedSheets,
+            snap.wasteSheets,
+            snap.current,
           ].join(",")
         );
       });
       downloadCsv("테이프재고.csv", lines.join("\n"));
     });
+
+  // ====== 날짜별 테이프 재고표 ======
+  function renderTapeHistoryTable() {
+    const wrap = document.getElementById("tape-history-table-wrap");
+    if (!tapeHistoryDateStr) {
+      tapeHistoryDateStr = todayStr();
+      const inp = document.getElementById("tape-history-date");
+      if (inp) inp.value = tapeHistoryDateStr;
+    }
+    if (tapes.length === 0) {
+      wrap.innerHTML =
+        '<p class="small-text">먼저 테이프 설정에서 테이프를 추가해 주세요.</p>';
+      return;
+    }
+    const rows = tapes.map((t) => {
+      const snap = calcTapeSnapshot(t.id, tapeHistoryDateStr);
+      return `<tr>
+        <td>${t.name}</td>
+        <td>${t.source}</td>
+        <td>${snap.inQty}</td>
+        <td>${snap.usedSheets}</td>
+        <td>${snap.wasteSheets}</td>
+        <td>${snap.current}</td>
+      </tr>`;
+    });
+    wrap.innerHTML = `
+      <div class="table-wrapper-inner">
+        <table>
+          <thead>
+            <tr>
+              <th>테이프명</th><th>출처</th><th>입고장수(누적)</th><th>사용장수(누적)</th><th>불량(누적)</th><th>${tapeHistoryDateStr} 기준 잔량</th>
+            </tr>
+          </thead>
+          <tbody>${rows.join("")}</tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  const historyDateInput = document.getElementById("tape-history-date");
+  const historyPrevBtn = document.getElementById("history-prev-btn");
+  const historyNextBtn = document.getElementById("history-next-btn");
+
+  if (historyDateInput) {
+    historyDateInput.addEventListener("change", () => {
+      tapeHistoryDateStr =
+        historyDateInput.value || todayStr();
+      renderTapeHistoryTable();
+    });
+  }
+  if (historyPrevBtn) {
+    historyPrevBtn.addEventListener("click", () => {
+      tapeHistoryDateStr = shiftDateStr(
+        tapeHistoryDateStr || todayStr(),
+        -1
+      );
+      historyDateInput.value = tapeHistoryDateStr;
+      renderTapeHistoryTable();
+    });
+  }
+  if (historyNextBtn) {
+    historyNextBtn.addEventListener("click", () => {
+      tapeHistoryDateStr = shiftDateStr(
+        tapeHistoryDateStr || todayStr(),
+        1
+      );
+      historyDateInput.value = tapeHistoryDateStr;
+      renderTapeHistoryTable();
+    });
+  }
 
   // ====== CSV download helper ======
   function downloadCsv(filename, text) {
@@ -1370,12 +1711,88 @@
       alert("비밀번호가 해제되었습니다.");
     });
 
+  // ====== 재고 탭 내부 토글 (제품 / 테이프) ======
+  document
+    .querySelectorAll(".subtab-button")
+    .forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const mode = btn.dataset.stock;
+        document
+          .querySelectorAll(".subtab-button")
+          .forEach((b) =>
+            b.classList.toggle("active", b === btn)
+          );
+        document.getElementById("stock-product-pane").style.display =
+          mode === "product" ? "block" : "none";
+        document.getElementById("stock-tape-pane").style.display =
+          mode === "tape" ? "block" : "none";
+      });
+    });
+
+  // ====== 대시보드 렌더링 ======
+  function renderDashboard() {
+    const wrap = document.getElementById("dashboard-content");
+    if (!wrap) return;
+    const today = todayStr();
+    const todayJobs = jobs.filter((j) => j.date === today);
+    const jobCount = todayJobs.length;
+    const todaySheets = todayJobs.reduce(
+      (sum, j) => sum + (j.sheets || 0),
+      0
+    );
+    const todayTapeIn = tapeInLogs
+      .filter((l) => l.date === today)
+      .reduce((sum, l) => sum + l.qty, 0);
+    const totalProductEa = products.reduce(
+      (sum, p) => sum + (p.ea || 0),
+      0
+    );
+    const totalTapeCurrent = tapes.reduce((sum, t) => {
+      const snap = calcTapeSnapshot(t.id, null);
+      return sum + snap.current;
+    }, 0);
+
+    wrap.innerHTML = `
+      <div class="stat-card">
+        <div class="stat-label">오늘 작업 개수</div>
+        <div class="stat-value">${jobCount}</div>
+        <div class="stat-sub">(${today})</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">오늘 사용 테이프 장수</div>
+        <div class="stat-value">${todaySheets}</div>
+        <div class="stat-sub">작업 기록 기준</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">오늘 입고된 테이프</div>
+        <div class="stat-value">${todayTapeIn}</div>
+        <div class="stat-sub">입고 등록 기준</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">현재 제품 재고 (EA)</div>
+        <div class="stat-value">${totalProductEa}</div>
+        <div class="stat-sub">잔여 세트 합계</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">현재 테이프 잔량 (장)</div>
+        <div class="stat-value">${totalTapeCurrent}</div>
+        <div class="stat-sub">모든 테이프 합계</div>
+      </div>
+    `;
+  }
+
   // ====== Initial boot ======
   function init() {
     // set default dates
-    document.getElementById("job-date").value = todayStr();
-    document.getElementById("job-filter-date").value = todayStr();
-    document.getElementById("tape-in-date").value = todayStr();
+    const today = todayStr();
+    document.getElementById("job-date").value = today;
+    document.getElementById("job-filter-date").value = today;
+    document.getElementById("tape-in-date").value = today;
+    const histInput = document.getElementById("tape-history-date");
+    if (histInput) {
+      tapeHistoryDateStr = today;
+      histInput.value = today;
+    }
 
     applyTheme();
     renderTapeTable();
@@ -1383,8 +1800,10 @@
     refreshAutocomplete();
     renderJobTable();
     renderTapeStockTable();
+    renderTapeHistoryTable();
+    renderDashboard();
 
-    // ask password once per session
+    // password first prompt (옵션)
     if (settings.password && !sessionStorage.getItem("tf_authed")) {
       const ok = ensureAuth();
       if (!ok) {
