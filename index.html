@@ -1626,8 +1626,6 @@
 // ====== 날짜별 테이프 재고표 ======
 function renderTapeHistoryTable() {
   const wrap = document.getElementById("tape-history-table-wrap");
-  if (!wrap) return;
-
   if (tapes.length === 0) {
     wrap.innerHTML =
       '<p class="small-text">먼저 테이프 설정과 입고 정보를 입력해 주세요.</p>';
@@ -1636,34 +1634,66 @@ function renderTapeHistoryTable() {
 
   const date = document.getElementById("hist-date").value || todayStr();
 
-  const rows = tapes.map((t) => {
-    const snap = calcTapeSnapshot(t.id, date); // { inQty, usedSheets, wasteSheets, current }
-    return `
-      <tr>
+  // 테이프별 스냅샷 한 번만 계산해서 요약/상세에 같이 쓰기
+  const list = tapes
+    .slice()
+    .map((t) => {
+      const snap = calcTapeSnapshot(t.id, date);
+      return { t, snap };
+    })
+    .sort((a, b) => a.t.name.localeCompare(b.t.name, "ko-KR")); // 테이프명 순 정렬
+
+  // ===== 요약 테이블 (테이프명 | 잔량) =====
+  const summaryRows = list
+    .map(
+      ({ t, snap }) => `<tr>
         <td>${t.name}</td>
-        <td>${snap.current}</td>
+        <td style="text-align:right;">${snap.current}</td>
+      </tr>`
+    )
+    .join("");
+
+  // ===== 상세 테이블 (입고/사용/불량/잔량) =====
+  const detailRows = list
+    .map(
+      ({ t, snap }) => `<tr>
+        <td>${t.name}</td>
         <td>${t.source}</td>
         <td>${snap.inQty}</td>
         <td>${snap.usedSheets}</td>
         <td>${snap.wasteSheets}</td>
-      </tr>
-    `;
-  }).join("");
+        <td>${snap.current}</td>
+      </tr>`
+    )
+    .join("");
 
   wrap.innerHTML = `
     <div class="table-wrapper-inner">
+      <div style="margin-bottom:10px;">
+        <p class="small-text"><b>${date}</b> 기준 잔량 요약 (테이프명 | 잔량)</p>
+        <table>
+          <thead>
+            <tr>
+              <th>테이프명</th>
+              <th style="text-align:right;">${date} 잔량</th>
+            </tr>
+          </thead>
+          <tbody>${summaryRows}</tbody>
+        </table>
+      </div>
+
       <table>
         <thead>
           <tr>
             <th>테이프명</th>
-            <th>${date} 기준 잔량</th>
             <th>출처</th>
             <th>입고장수(누적)</th>
             <th>사용장수(누적)</th>
             <th>불량(누적)</th>
+            <th>${date} 기준 잔량</th>
           </tr>
         </thead>
-        <tbody>${rows}</tbody>
+        <tbody>${detailRows}</tbody>
       </table>
     </div>
   `;
