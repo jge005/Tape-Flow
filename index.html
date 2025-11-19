@@ -1079,19 +1079,24 @@
   }
 
   function adjustProductForJob(job, sign) {
-    // sign: +1 to add back, -1 to apply usage
-    if (!job.productId || !job.eaUsed) return;
-    const p = products.find((x) => x.id === job.productId);
-    if (!p) return;
-    p.ea += sign * -job.eaUsed; // 사용은 EA 감소
-    if (p.ea <= 0 && sign === -1) {
-      products = products.filter((x) => x.id !== p.id);
-    }
-    if (p.ea < 0 && sign === 1) {
-      p.ea = 0;
-    }
+  // sign: +1 = 사용 되돌리기(재고 늘리기), -1 = 사용 반영(재고 줄이기)
+  if (!job.productId || !job.eaUsed) return;
+  const p = products.find((x) => x.id === job.productId);
+  if (!p) return;
+
+  // 재고 계산
+  p.ea += sign * job.eaUsed;
+
+  // 사용 반영이라 재고가 0 이하 → 제품 재고 삭제
+  if (sign === -1 && p.ea <= 0) {
+    products = products.filter((x) => x.id !== p.id);
   }
 
+  // 되돌릴 때 음수 방지
+  if (sign === 1 && p.ea < 0) {
+    p.ea = 0;
+  }
+}
   async function onJobRowAction(e) {
     const id = e.target.dataset.id;
     const act = e.target.dataset.act;
@@ -1242,8 +1247,7 @@
 
       const existing = editingJobId
         ? jobs.find((x) => x.id === editingJobId)
-        : null;
-
+        : null
       const jobObj = {
         id: editingJobId || uid(),
         date,
@@ -1619,41 +1623,51 @@
       downloadCsv("테이프재고.csv", lines.join("\n"));
     });
 
-  // ====== 날짜별 테이프 재고표 ======
-  function renderTapeHistoryTable() {
-    const wrap = document.getElementById("tape-history-table-wrap");
-    if (tapes.length === 0) {
-      wrap.innerHTML =
-        '<p class="small-text">먼저 테이프 설정과 입고 정보를 입력해 주세요.</p>';
-      return;
-    }
-    const date = document.getElementById("hist-date").value || todayStr();
+// ====== 날짜별 테이프 재고표 ======
+function renderTapeHistoryTable() {
+  const wrap = document.getElementById("tape-history-table-wrap");
+  if (!wrap) return;
 
-    const rows = tapes.map((t) => {
-      const snap = calcTapeSnapshot(t.id, date);
-      return `<tr>
+  if (tapes.length === 0) {
+    wrap.innerHTML =
+      '<p class="small-text">먼저 테이프 설정과 입고 정보를 입력해 주세요.</p>';
+    return;
+  }
+
+  const date = document.getElementById("hist-date").value || todayStr();
+
+  const rows = tapes.map((t) => {
+    const snap = calcTapeSnapshot(t.id, date); // { inQty, usedSheets, wasteSheets, current }
+    return `
+      <tr>
         <td>${t.name}</td>
+        <td>${snap.current}</td>
         <td>${t.source}</td>
         <td>${snap.inQty}</td>
         <td>${snap.usedSheets}</td>
         <td>${snap.wasteSheets}</td>
-        <td>${snap.current}</td>
-      </tr>`;
-    });
-
-    wrap.innerHTML = `
-      <div class="table-wrapper-inner">
-        <table>
-          <thead>
-            <tr>
-              <th>테이프명</th><th>출처</th><th>입고장수(누적)</th><th>사용장수(누적)</th><th>불량(누적)</th><th>${date} 기준 잔량</th>
-            </tr>
-          </thead>
-          <tbody>${rows.join("")}</tbody>
-        </table>
-      </div>
+      </tr>
     `;
-  }
+  }).join("");
+
+  wrap.innerHTML = `
+    <div class="table-wrapper-inner">
+      <table>
+        <thead>
+          <tr>
+            <th>테이프명</th>
+            <th>${date} 기준 잔량</th>
+            <th>출처</th>
+            <th>입고장수(누적)</th>
+            <th>사용장수(누적)</th>
+            <th>불량(누적)</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
 
   document
     .getElementById("hist-date")
